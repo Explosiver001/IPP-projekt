@@ -39,4 +39,23 @@ $instruction_set = array(
     "DPRINT",
     "BREAK"
 );
+
+class Token{
+    private $identif;
+    private $type;
+    private $data_type;
+    private $data;
+
+    function Init($new_identif, $new_type, $new_data_type){
+        
+    }
+} 
+
+class InstructionData{
+    public $operandCount;
+    public $operands;
+    public $operand_types;
+}
+
+
 ?>

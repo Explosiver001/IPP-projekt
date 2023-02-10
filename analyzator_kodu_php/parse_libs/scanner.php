@@ -14,7 +14,7 @@ function is_instruction($token){
 
 function is_operand($token){
     $variable_pattern = "/^((LF)|(TF)|(GF))@([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])*$/";
-    $string_pattern = "/^string@$/"; //TODO fix
+    $string_pattern = "/^string@([!\"]|[%-[]|]|\^|[_-~]|([\\\\][0-9][0-9][0-9]))*$/";
     $int_pattern = "/^(int@[+-]\d+)|(int@\d+)$/";
     $bool_pattern = "/^(bool@true)|(bool@false)$/";
     $nil_pattern = "/^nil@nil$/";
@@ -30,10 +30,18 @@ function is_operand($token){
 
 function read_lines($input_file){
     global $stderr;
+    //for($line_num = 1; )
     while(!feof($input_file)){
         $in_comment = false;
         $line = fgets($input_file);
+        $to_replace = array("  ", "\t");
+        $line = str_replace($to_replace, " ", $line);
         $line = trim($line);
+
+        if(!strcmp($line, "")){
+            continue;
+        }
+        
         $split_line = explode(' ', $line);
 
         for ($i = 0; $i < count($split_line); $i++) {
