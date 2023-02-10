@@ -1,6 +1,7 @@
 <?php
 
 include 'parse_libs/scanner.php';
+include 'parse_libs/parser.php';
 
 $short_options = "hd";
 $long_options = array("help", "debug");
@@ -19,8 +20,9 @@ if(array_key_exists("d", $options) || array_key_exists("debug", $options)){
 }
 
 
-read_lines($input_file);
+$code_lines = read_lines($input_file);
 
+syntax_check($code_lines);
 
 
 ?>

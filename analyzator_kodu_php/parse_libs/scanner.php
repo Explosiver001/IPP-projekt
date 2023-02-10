@@ -1,5 +1,5 @@
 <?php
-include 'vars.php';
+include_once 'vars.php';
 
 
 
@@ -57,7 +57,7 @@ function find_type($token){
 }
 
 
-function read_lines($input_file){
+function read_lines($input_file): array{
     global $stderr;
     global $DEBUG_PARAM;
 
@@ -119,6 +119,8 @@ function read_lines($input_file){
     }
     if($DEBUG_PARAM)
         print_r($code_array);
+    
+    return $code_array;
 }
 
 ?>
