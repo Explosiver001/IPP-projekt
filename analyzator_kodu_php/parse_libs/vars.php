@@ -40,22 +40,38 @@ $instruction_set = array(
     "BREAK"
 );
 
-class Token{
-    private $identif;
-    private $type;
-    private $data_type;
-    private $data;
+enum Types{
+    case Instruction;
+    case Int;
+    case Bool;
+    case String;
+    case Nil;
+    case Label;
+    case Type;
+    case Var;
+    case Comment;
+    case Error;
+    case Header;
+}
 
-    function Init($new_identif, $new_type, $new_data_type){
-        
+const Param_Error = 10; //chybějící parametr skriptu (je-li třeba) nebo použití zakázané kombinace parametrů
+const Open_Error = 11; //chyba při otevírání vstupních souborů (např. neexistence, nedostatečné oprávnění);
+const WriteOpen_Error = 12; //chyba při otevření výstupních souborů pro zápis (např. nedostatečné oprávnění, chyba
+const Header_Error = 21; //chybná nebo chybějící hlavička ve zdrojovém kódu zapsaném v IPPcode23
+const UnknownCode_Error = 22; //neznámý nebo chybný operační kód ve zdrojovém kódu zapsaném v IPPcode23
+const LexSyn_Error = 23; //jiná lexikální nebo syntaktická chyba zdrojového kódu zapsaného v IPPcode23
+const Internal_Error = 99; //interní chyba (neovlivněná vstupními soubory či parametry příkazové řádky; např. chyba alokace paměti)
+
+
+class Token{
+    public $identif;
+    public $type;
+
+    public function __construct($identif, $type){
+        $this->identif = $identif;
+        $this->type = $type;
     }
 } 
-
-class InstructionData{
-    public $operandCount;
-    public $operands;
-    public $operand_types;
-}
 
 
 ?>
