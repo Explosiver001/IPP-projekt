@@ -13,17 +13,19 @@ function is_instruction($token){
 }
 
 function find_type($token){
-    $variable_pattern = "/^((LF)|(TF)|(GF))@([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])+$/";
+    // regulární výrazy pro povolené tokeny
+    $variable_pattern = "/^((LF)|(TF)|(GF))@([-]|[a-z]|[A-Z]|[_$&%*!?])([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])*$/";
     //$string_pattern = "/^string@([!\"]|[%-[]|]|\^|[_-~]|([\\\\][0-9][0-9][0-9]))*$/"; //! stara verze, jen ascii 0-127
     $string_pattern = "/^string@(([^\#\\\\\001-\032])|([\\\\][0-9][0-9][0-9]))*$/";
     $int_pattern = "/^(int@[+-]\d+)|(int@\d+)$/";
     $bool_pattern = "/^(bool@true)|(bool@false)$/";
     $nil_pattern = "/^nil@nil$/";
     $type_pattern = "/^(int)|(string)|(bool)$/";
-    $label_pattern = "/^([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])+$/";
+    $label_pattern = "/^([-]|[a-z]|[A-Z]|[_$&%*!?])([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])*$/";
     $comment_pattern = "/^#/";
     $header_pattern = "/^.IPPcode23$/";
 
+    // zjištění jednotlivých typů
     if(is_instruction($token))
         return Types::Instruction;
     if(preg_match($header_pattern, $token))
@@ -45,60 +47,68 @@ function find_type($token){
     if(preg_match($label_pattern, $token))
         return Types::Label;
 
+    // token nebyl rozpoznán
     return Types::Error;
 }
 
+// funkce lexikální analýzy + uložení tokenů
+function scanner($input_file): array{
+    global $stderr; // chybový výstup
+    global $DEBUG_PARAM; 
 
-function read_lines($input_file): array{
-    global $stderr;
-    global $DEBUG_PARAM;
+    $code_array = array(); // výstupní data
+    // čtení souboru
+    while(!feof($input_file)){ 
+        $line = fgets($input_file); // načtení řádku
 
-    $code_array = array();
-    while(!feof($input_file)){
-        $line = fgets($input_file);
-
-        $line = str_replace("#", " #", $line);
-        while(str_contains($line, "\t") || str_contains($line, "  ")){
+        // zpracování řádku do jednodušší podoby
+        $line = str_replace("#", " #", $line); // před komentářem je vždy mezera
+        $line = str_replace("# ", "#", $line);
+        while(str_contains($line, "\t") || str_contains($line, "  ")){ // odebrání veškerých dvoj-mezer a tabelátorů
             $to_replace = array("  ", "\t");
             $line = str_replace($to_replace, " ", $line);
         }
 
-        $line = trim($line);
+        $line = trim($line); // odebrání bílých znaků ze začátku a konce řádku
 
-        if(!strcmp($line, "")){
+        // ošetření prázdných řádků
+        if(!strcmp($line, "")){ 
             continue;
         }
         
-        $split_line = explode(' ', $line);
-        $operation = array();
+        $split_line = explode(' ', $line); // rozdělení řádku do pole
+        $operation = array(); // výsledný zpracovaný řádek == instrukce + operandy
 
         for ($i = 0; $i < count($split_line); $i++) {
-            $ret_type = find_type($split_line[$i]);
-            if($ret_type == Types::Comment)
+            $ret_type = find_type($split_line[$i]); // zjištění typu
+            if($ret_type == Types::Comment) // v případě komentáře se ukončí zpracování řádku
                 break;
-            elseif($i == 0 && $ret_type != Types::Instruction && $ret_type != Types::Header){
+            elseif($i == 0 && $ret_type != Types::Instruction && $ret_type != Types::Header){ // lehká invaze ze syntakticé analýzy, nerozpoznaná instrukce
+                if(empty($code_array)){
+                    fprintf($stderr, "ERROR:: chyba hlavicky %s\n", $split_line[$i]);
+                    exit(Header_Error);
+                }
+                
                 fprintf($stderr, "ERROR:: neznama instrukce %s\n", $split_line[$i]);
                 exit(UnknownCode_Error);
             }
-            elseif($ret_type == Types::Error){
+            elseif($ret_type == Types::Error){ // chyba
                 fprintf($stderr, "ERROR:: neznamy operand %s\n", $split_line[$i]);
                 exit(LexSyn_Error);
             }
-            else{
-                $to_replace = array("bool@", "nil@", "int@", "string@");
-                $split_line[$i] = str_replace($to_replace, "", $split_line[$i]);
+            else{ // token je operand
                 $token = new Token($split_line[$i], $ret_type);
                 array_push($operation, $token);
             }
         }
-        if(!empty($operation))
-            array_push($code_array, $operation);
+        if(!empty($operation)) // prázdný řádek není předán dál
+            array_push($code_array, $operation); // přidání zpracovaného řádku pro další operace
     }
 
-    if($DEBUG_PARAM)
+    if($DEBUG_PARAM) // pomocný výpis
         print_r($code_array);
 
-    return $code_array;
+    return $code_array; 
 }
 
 ?>

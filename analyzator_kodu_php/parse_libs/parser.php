@@ -2,17 +2,19 @@
 
 include_once "vars.php";
 
+// pravidla jazyka IPP2023
+// první položka pole obsahuje všechny instrukce, které sdílí stejný typ a počet operandů
 $RULE_SET = array(
-    array( "MOVE", 
-        array(Types::Var), 
-        array(Types::Var, Types::Nil, Types::Int, Types::String) ),
+    array( "MOVE", // instrukce
+        array(Types::Var), // první operand musí být typu <var>
+        array(Types::Var, Types::Nil, Types::Int, Types::String, Types::Bool) ),
     array( "CREATEFRAME__PUSHFRAME__POPFRAME__RETURN__BREAK" ),
     array( "DEFVAR__POPS", 
         array(Types::Var) ),
     array( "CALL__LABEL__JUMP", 
         array(Types::Label) ),
     array( "PUSHS__WRITE__DPRINT", 
-        array(Types::Var, Types::Int, Types::Bool, Types::String) ),
+        array(Types::Var, Types::Int, Types::Bool, Types::String, Types::Nil) ),
     array( "ADD__SUB__MUL__IDIV", 
         array(Types::Var), 
         array(Types::Var, Types::Int), 
@@ -113,9 +115,16 @@ function check_line($line){
 
     $instruction = $line[0]->identif;
 
+    if($line[0]->type == Types::Header){
+        fprintf($stderr, "ERROR:: Prebyvajici hlavicka!\n");
+            exit(UnknownCode_Error);
+    }
+
     $found = false;
     foreach($RULE_SET as $rule){
-        if(str_contains($rule[0], $instruction) && (count($rule) == count($line))){
+        if(str_contains($rule[0], strtoupper($instruction)) && (count($rule) == count($line))){
+            if(count($rule) == 1)
+                $found = true;
             for($i = 1; $i < count($rule); $i++){
                 if(!in_array($line[$i]->type, $rule[$i], true)){
                     $found = false;
@@ -132,15 +141,20 @@ function check_line($line){
             fprintf($stderr, " <%s>", $line[$i]->identif);
         }
         fprintf($stderr, " not found!\n");
+        print_r($line);
         exit(LexSyn_Error);
     }
 }
 
 function syntax_check($code_lines){
     global $stderr;
-    if($code_lines[0][0]->type != Types::Header && count($code_lines[0])>1){
+
+    if(empty($code_lines))
+        return;
+
+    if($code_lines[0][0]->type != Types::Header){
         fprintf($stderr, "ERROR:: Chybejici nebo chybna hlavicka souboru!\n");
-                exit(Header_Error);
+            exit(Header_Error);
     }
     for($i = 1; $i < count($code_lines); $i++){
         check_line($code_lines[$i]);

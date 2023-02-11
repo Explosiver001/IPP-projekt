@@ -55,8 +55,8 @@ enum Types{
 }
 
 const Param_Error = 10; //chybějící parametr skriptu (je-li třeba) nebo použití zakázané kombinace parametrů
-const Open_Error = 11; //chyba při otevírání vstupních souborů (např. neexistence, nedostatečné oprávnění);
-const WriteOpen_Error = 12; //chyba při otevření výstupních souborů pro zápis (např. nedostatečné oprávnění, chyba
+const Open_Error = 11; //chyba při otevírání vstupních souborů (např. neexistence, nedostatečné oprávnění)
+const WriteOpen_Error = 12; //chyba při otevření výstupních souborů pro zápis (např. nedostatečné oprávnění, chyba)
 const Header_Error = 21; //chybná nebo chybějící hlavička ve zdrojovém kódu zapsaném v IPPcode23
 const UnknownCode_Error = 22; //neznámý nebo chybný operační kód ve zdrojovém kódu zapsaném v IPPcode23
 const LexSyn_Error = 23; //jiná lexikální nebo syntaktická chyba zdrojového kódu zapsaného v IPPcode23
@@ -68,6 +68,8 @@ class Token{
     public $type;
 
     public function __construct($identif, $type){
+        $to_replace = array("bool@", "nil@", "int@", "string@");
+        $identif = str_replace($to_replace, "", $identif);
         $this->identif = $identif;
         $this->type = $type;
     }

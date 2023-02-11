@@ -1,6 +1,8 @@
 PHP = php81
 SOURCE = parse.php
 
+r:
+	@$(PHP) -f $(SOURCE) ##<test_inputs/zadani.ippcode
 
 d:
 	@$(PHP) -f $(SOURCE) -- -d <test_inputs/zadani.ippcode >flush.log

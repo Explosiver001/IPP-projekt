@@ -1,6 +1,9 @@
 <?php
 include_once 'vars.php';
 
+/**
+ * Získání datového typu z vnitřní reprezentace
+ */
 function type_parser($type){
     switch($type){
         case Types::Int:
@@ -22,18 +25,22 @@ function type_parser($type){
     }
 }
 
+/**
+ * Generace výstupního XML formátu
+ */
 function generate_xml($code){
-    $xml = new XMLWriter();
+    // Inicializace výstupu a formátu
+    $xml = new XMLWriter(); 
     $xml->openMemory();
-    $xml->setIndent(true);
-    $xml->setIndentString("\t");
-    
+    $xml->setIndent(true); // povolení indentace
+    $xml->setIndentString("\t"); // nastavení indentace na tabelátor
     // povinná hlavička
     $xml->startDocument('1.0', 'UTF-8');
     $xml->startElement('program');
     $xml->startAttribute('language');
     $xml->text('IPPcode23');
     
+    // zpracování jednotlivých instrukcí
     for($i = 1; $i < count($code); $i++){
         $line = $code[$i];
         $xml->startElement('instruction');
@@ -43,9 +50,10 @@ function generate_xml($code){
         $xml->endAttribute();
 
         $xml->startAttribute('opcode');
-        $xml->text($line[0]->identif);
+        $xml->text(strtoupper($line[0]->identif));
         $xml->endAttribute();
 
+        // operandy instrukce
         for($j = 1; $j < count($line); $j++){
             $xml->startElement('arg'.$j);
 
@@ -53,14 +61,12 @@ function generate_xml($code){
             $xml->text(type_parser($line[$j]->type));//todo
             $xml->endAttribute();
 
-            
             $xml->text($line[$j]->identif);
             
-
             $xml->endElement();
         }
-        $xml->endElement();
 
+        $xml->endElement();
     }
     
     // ukončení souboru
@@ -68,8 +74,8 @@ function generate_xml($code){
     $xml->endElement();
     $xml->endDocument();
 
-    file_put_contents("output.xml", $xml->outputMemory());
+    echo $xml->outputMemory(); // výpis XML
+    //file_put_contents("output.xml", $xml->outputMemory()); //TODO odebrat
 }
-
 
 ?>
