@@ -77,11 +77,11 @@ function read_lines($input_file): array{
             if($ret_type == Types::Comment)
                 break;
             elseif($i == 0 && $ret_type != Types::Instruction && $ret_type != Types::Header){
-                fprintf($stderr, "ERROR:: %s\n", $split_line[$i]);
+                fprintf($stderr, "ERROR:: neznama instrukce %s\n", $split_line[$i]);
                 exit(UnknownCode_Error);
             }
             elseif($ret_type == Types::Error){
-                fprintf($stderr, "ERROR:: %s\n", $split_line[$i]);
+                fprintf($stderr, "ERROR:: neznamy operand %s\n", $split_line[$i]);
                 exit(LexSyn_Error);
             }
             else{

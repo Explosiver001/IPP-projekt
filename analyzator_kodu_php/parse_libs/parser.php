@@ -127,7 +127,12 @@ function check_line($line){
         }
     }
     if(!$found){
-        fprintf($stderr, "ERROR:: not found <%s>\n", $instruction);
+        fprintf($stderr, "ERROR:: rule for <%s> with operands:", $instruction);
+        for($i = 1; $i < count($line); $i++){
+            fprintf($stderr, " <%s>", $line[$i]->identif);
+        }
+        fprintf($stderr, " not found!\n");
+        exit(LexSyn_Error);
     }
 }
 
