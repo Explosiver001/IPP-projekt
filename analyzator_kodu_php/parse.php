@@ -2,6 +2,7 @@
 
 include 'parse_libs/scanner.php';
 include 'parse_libs/parser.php';
+include 'parse_libs/generator.php';
 
 $short_options = "hd";
 $long_options = array("help", "debug");
@@ -19,10 +20,10 @@ if(array_key_exists("d", $options) || array_key_exists("debug", $options)){
     echo "--- Debug mode ACTIVE ---\n";
 }
 
-
 $code_lines = read_lines($input_file);
 
 syntax_check($code_lines);
+generate_xml($code_lines);
 
 
 ?>

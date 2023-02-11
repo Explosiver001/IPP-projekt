@@ -96,7 +96,7 @@ $GROUP_J = "STRI2INT__GETCHAR";
 $GROUP_K = "READ";
 $GROUP_L = "CONCAT";
 $GROUP_M = "STRLEN";
-$GROUP_N = ;
+$GROUP_N = "MOVE";
 $GROUP_O = "SETCHAR";
 $GROUP_P = "TYPE";
 $GROUP_Q = "JUMPIFEQ__JUMPIFNEQ";
@@ -112,7 +112,6 @@ function check_line($line){
         return;
 
     $instruction = $line[0]->identif;
-    //echo $instruction."\n";
 
     $found = false;
     foreach($RULE_SET as $rule){

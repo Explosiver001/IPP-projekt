@@ -29,7 +29,7 @@ Array
 
             [1] => Token Object
                 (
-                    [identif] => GF@counter
+                    [identif] => GF@a
                     [type] => Types Enum
                         (
                             [name] => Var
@@ -43,7 +43,7 @@ Array
         (
             [0] => Token Object
                 (
-                    [identif] => MOVE
+                    [identif] => READ
                     [type] => Types Enum
                         (
                             [name] => Instruction
@@ -53,7 +53,7 @@ Array
 
             [1] => Token Object
                 (
-                    [identif] => GF@counter
+                    [identif] => GF@a
                     [type] => Types Enum
                         (
                             [name] => Var
@@ -63,10 +63,10 @@ Array
 
             [2] => Token Object
                 (
-                    [identif] => string@
+                    [identif] => int
                     [type] => Types Enum
                         (
-                            [name] => String
+                            [name] => Type
                         )
 
                 )
@@ -75,13 +75,9 @@ Array
 
     [3] => Array
         (
-        )
-
-    [4] => Array
-        (
             [0] => Token Object
                 (
-                    [identif] => LABEL
+                    [identif] => WRITE
                     [type] => Types Enum
                         (
                             [name] => Instruction
@@ -91,10 +87,34 @@ Array
 
             [1] => Token Object
                 (
-                    [identif] => while
+                    [identif] => GF@a
                     [type] => Types Enum
                         (
-                            [name] => Label
+                            [name] => Var
+                        )
+
+                )
+
+        )
+
+    [4] => Array
+        (
+            [0] => Token Object
+                (
+                    [identif] => WRITE
+                    [type] => Types Enum
+                        (
+                            [name] => Instruction
+                        )
+
+                )
+
+            [1] => Token Object
+                (
+                    [identif] => \032<not-tag/>\032
+                    [type] => Types Enum
+                        (
+                            [name] => String
                         )
 
                 )
@@ -105,50 +125,6 @@ Array
         (
             [0] => Token Object
                 (
-                    [identif] => JUMPIFEQ
-                    [type] => Types Enum
-                        (
-                            [name] => Instruction
-                        )
-
-                )
-
-            [1] => Token Object
-                (
-                    [identif] => end
-                    [type] => Types Enum
-                        (
-                            [name] => Label
-                        )
-
-                )
-
-            [2] => Token Object
-                (
-                    [identif] => GF@counter
-                    [type] => Types Enum
-                        (
-                            [name] => Var
-                        )
-
-                )
-
-            [3] => Token Object
-                (
-                    [identif] => string@aaa
-                    [type] => Types Enum
-                        (
-                            [name] => String
-                        )
-
-                )
-
-        )
-
-    [6] => Array
-        (
-            [0] => Token Object
-                (
                     [identif] => WRITE
                     [type] => Types Enum
                         (
@@ -159,150 +135,10 @@ Array
 
             [1] => Token Object
                 (
-                    [identif] => string@Proměnná\032GF@counter\032obsahuje\032
+                    [identif] => true
                     [type] => Types Enum
                         (
-                            [name] => String
-                        )
-
-                )
-
-        )
-
-    [7] => Array
-        (
-            [0] => Token Object
-                (
-                    [identif] => WRITE
-                    [type] => Types Enum
-                        (
-                            [name] => Instruction
-                        )
-
-                )
-
-            [1] => Token Object
-                (
-                    [identif] => GF@counter
-                    [type] => Types Enum
-                        (
-                            [name] => Var
-                        )
-
-                )
-
-        )
-
-    [8] => Array
-        (
-            [0] => Token Object
-                (
-                    [identif] => WRITE
-                    [type] => Types Enum
-                        (
-                            [name] => Instruction
-                        )
-
-                )
-
-            [1] => Token Object
-                (
-                    [identif] => string@\010
-                    [type] => Types Enum
-                        (
-                            [name] => String
-                        )
-
-                )
-
-        )
-
-    [9] => Array
-        (
-            [0] => Token Object
-                (
-                    [identif] => CONCAT
-                    [type] => Types Enum
-                        (
-                            [name] => Instruction
-                        )
-
-                )
-
-            [1] => Token Object
-                (
-                    [identif] => GF@counter
-                    [type] => Types Enum
-                        (
-                            [name] => Var
-                        )
-
-                )
-
-            [2] => Token Object
-                (
-                    [identif] => GF@counter
-                    [type] => Types Enum
-                        (
-                            [name] => Var
-                        )
-
-                )
-
-            [3] => Token Object
-                (
-                    [identif] => string@a
-                    [type] => Types Enum
-                        (
-                            [name] => String
-                        )
-
-                )
-
-        )
-
-    [10] => Array
-        (
-            [0] => Token Object
-                (
-                    [identif] => JUMP
-                    [type] => Types Enum
-                        (
-                            [name] => Instruction
-                        )
-
-                )
-
-            [1] => Token Object
-                (
-                    [identif] => while
-                    [type] => Types Enum
-                        (
-                            [name] => Label
-                        )
-
-                )
-
-        )
-
-    [11] => Array
-        (
-            [0] => Token Object
-                (
-                    [identif] => LABEL
-                    [type] => Types Enum
-                        (
-                            [name] => Instruction
-                        )
-
-                )
-
-            [1] => Token Object
-                (
-                    [identif] => end
-                    [type] => Types Enum
-                        (
-                            [name] => Label
+                            [name] => Bool
                         )
 
                 )

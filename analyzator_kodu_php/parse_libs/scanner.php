@@ -24,7 +24,6 @@ function find_type($token){
     $comment_pattern = "/^#/";
     $header_pattern = "/^.IPPcode23$/";
 
-    
     if(is_instruction($token))
         return Types::Instruction;
     if(preg_match($header_pattern, $token))
@@ -47,13 +46,6 @@ function find_type($token){
         return Types::Label;
 
     return Types::Error;
-    
-    /*
-    if (preg_match($variable_pattern, $token) || preg_match($string_pattern, $token) || preg_match($int_pattern, $token) 
-        || preg_match($bool_pattern, $token) || preg_match($nil_pattern, $token))
-        return true;
-    return false;
-    */
 }
 
 
@@ -62,13 +54,15 @@ function read_lines($input_file): array{
     global $DEBUG_PARAM;
 
     $code_array = array();
-    //for($line_num = 1; )
     while(!feof($input_file)){
         $line = fgets($input_file);
+
+        $line = str_replace("#", " #", $line);
         while(str_contains($line, "\t") || str_contains($line, "  ")){
             $to_replace = array("  ", "\t");
             $line = str_replace($to_replace, " ", $line);
         }
+
         $line = trim($line);
 
         if(!strcmp($line, "")){
@@ -76,12 +70,9 @@ function read_lines($input_file): array{
         }
         
         $split_line = explode(' ', $line);
-
-
         $operation = array();
 
         for ($i = 0; $i < count($split_line); $i++) {
-
             $ret_type = find_type($split_line[$i]);
             if($ret_type == Types::Comment)
                 break;
@@ -94,32 +85,19 @@ function read_lines($input_file): array{
                 exit(LexSyn_Error);
             }
             else{
+                $to_replace = array("bool@", "nil@", "int@", "string@");
+                $split_line[$i] = str_replace($to_replace, "", $split_line[$i]);
                 $token = new Token($split_line[$i], $ret_type);
                 array_push($operation, $token);
             }
-
-
-
-            /*if (!$in_comment) {
-                
-                if (!strcmp($split_line[$i], "#")) { // komnetáře
-                    $in_comment = true;
-                }
-                elseif (!(is_operand($split_line[$i]) || is_instruction($split_line[$i]))){ // token není instrukce ani operand
-                    fprintf($stderr, "<< %s >> neni validni token!\n\n", $split_line[$i]);
-                }
-                else{
-                    fprintf($stderr, "(( %s )) je validni token!\n\n", $split_line[$i]);
-                }
-                    
-            }*/
         }
-        array_push($code_array, $operation);
-
+        if(!empty($operation))
+            array_push($code_array, $operation);
     }
+
     if($DEBUG_PARAM)
         print_r($code_array);
-    
+
     return $code_array;
 }
 
