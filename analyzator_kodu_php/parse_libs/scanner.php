@@ -1,8 +1,6 @@
 <?php
 include_once 'vars.php';
 
-
-
 function is_instruction($token){
     global $instruction_set;
     foreach($instruction_set as $instruction){
@@ -108,7 +106,7 @@ function scanner($input_file): array{
     if($DEBUG_PARAM) // pomocný výpis
         print_r($code_array);
 
-    return $code_array; 
+    return $code_array; // zpracovaná data pro syntaktickou analýzu a generator
 }
 
 ?>

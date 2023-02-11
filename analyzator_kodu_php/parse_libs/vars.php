@@ -2,43 +2,7 @@
 $stderr = fopen('php://stderr', 'w');
 $input_file = fopen('php://stdin', "r");
 
-$instruction_set = array(
-    "MOVE",
-    "CREATEFRAME",
-    "PUSHFRAME",
-    "POPFRAME",
-    "DEFVAR",
-    "CALL",
-    "RETURN",
-    "PUSHS",
-    "POPS",
-    "ADD",
-    "SUB",
-    "MUL",
-    "IDIV",
-    "LT",
-    "GT",
-    "EQ",
-    "AND",
-    "OR",
-    "NOT",
-    "INT2CHAR",
-    "STRI2INT",
-    "READ",
-    "WRITE",
-    "CONCAT",
-    "STRLEN",
-    "GETCHAR",
-    "SETCHAR",
-    "TYPE",
-    "LABEL",
-    "JUMP",
-    "JUMPIFEQ",
-    "JUMPIFNEQ",
-    "EXIT",
-    "DPRINT",
-    "BREAK"
-);
+$instruction_set = array( "MOVE", "CREATEFRAME", "PUSHFRAME", "POPFRAME", "DEFVAR", "CALL", "RETURN", "PUSHS", "POPS", "ADD", "SUB", "MUL", "IDIV", "LT", "GT", "EQ", "AND", "OR", "NOT", "INT2CHAR", "STRI2INT", "READ", "WRITE", "CONCAT", "STRLEN", "GETCHAR", "SETCHAR", "TYPE", "LABEL", "JUMP", "JUMPIFEQ", "JUMPIFNEQ", "EXIT", "DPRINT", "BREAK");
 
 enum Types{
     case Instruction;
@@ -52,8 +16,6 @@ enum Types{
     case Comment;
     case Error;
     case Header;
-
-    case AnyDataType; // String, Int, Bool, Nil
 }
 
 const Param_Error = 10; //chybějící parametr skriptu (je-li třeba) nebo použití zakázané kombinace parametrů
@@ -76,6 +38,5 @@ class Token{
         $this->type = $type;
     }
 } 
-
 
 ?>
