@@ -52,6 +52,8 @@ enum Types{
     case Comment;
     case Error;
     case Header;
+
+    case AnyDataType; // String, Int, Bool, Nil
 }
 
 const Param_Error = 10; //chybějící parametr skriptu (je-li třeba) nebo použití zakázané kombinace parametrů

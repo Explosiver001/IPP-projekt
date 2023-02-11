@@ -4,108 +4,117 @@ include_once "vars.php";
 
 // pravidla jazyka IPP2023
 // první položka pole obsahuje všechny instrukce, které sdílí stejný typ a počet operandů
-$RULE_SET = array(
-    array( "MOVE", // instrukce
+$RULE_SET_EXTENDED = array(
+    array( "_MOVE_", // instrukce
         array(Types::Var), // první operand musí být typu <var>
         array(Types::Var, Types::Nil, Types::Int, Types::String, Types::Bool) ),
-    array( "CREATEFRAME__PUSHFRAME__POPFRAME__RETURN__BREAK" ),
-    array( "DEFVAR__POPS", 
+    array( "_CREATEFRAME__PUSHFRAME__POPFRAME__RETURN__BREAK_" ),
+    array( "_DEFVAR__POPS_", 
         array(Types::Var) ),
-    array( "CALL__LABEL__JUMP", 
+    array( "_CALL__LABEL__JUMP_", 
         array(Types::Label) ),
-    array( "PUSHS__WRITE__DPRINT", 
+    array( "_PUSHS__WRITE__DPRINT_", 
         array(Types::Var, Types::Int, Types::Bool, Types::String, Types::Nil) ),
-    array( "ADD__SUB__MUL__IDIV", 
+    array( "_ADD__SUB__MUL__IDIV_", 
         array(Types::Var), 
         array(Types::Var, Types::Int), 
         array(Types::Var, Types::Int) ),
-    array( "LT__GT__EQ", 
+    array( "_LT__GT__EQ_", 
         array(Types::Var), 
         array(Types::Var,Types::Int), 
         array(Types::Var, Types::Int) ),
-    array( "LT__GT__EQ", 
+    array( "_LT__GT__EQ_", 
         array(Types::Var), 
         array(Types::Var, Types::Bool), 
         array(Types::Var, Types::Bool) ),
-    array( "LT__GT__EQ", 
+    array( "_LT__GT__EQ_", 
         array(Types::Var), 
         array(Types::Var, Types::String), 
         array(Types::Var, Types::String) ),
-    array( "LT__GT__EQ", 
+    array( "_LT__GT__EQ_", 
         array(Types::Var), 
         array(Types::Var, Types::Nil), 
         array(Types::Var, Types::Nil) ),
-    array( "AND_OR", 
+    array( "_AND_OR_", 
         array(Types::Var), 
         array(Types::Var, Types::Bool), 
         array(Types::Var, Types::Bool) ),
-    array( "NOT", 
+    array( "_NOT_", 
         array(Types::Var), 
         array(Types::Var, Types::Bool) ),
-    array( "INT2CHAR", 
+    array( "_INT2CHAR_", 
         array(Types::Var), 
         array(Types::Var, Types::Int)),
-    array( "STRI2INT__GETCHAR", 
+    array( "_STRI2INT__GETCHAR_", 
         array(Types::Var), 
         array(Types::Var, Types::String), 
         array(Types::Var, Types::Int) ),
-    array( "READ",  
+    array( "_READ_",  
         array(Types::Var), 
         array(Types::Type)),
-    array( "CONCAT", 
+    array( "_CONCAT_", 
         array(Types::Var), 
         array(Types::Var, Types::String), 
         array(Types::Var, Types::String) ),
-    array( "STRLEN", 
+    array( "_STRLEN_", 
         array(Types::Var), 
         array(Types::Var, Types::String) ),
-    array( "SETCHAR", 
+    array( "_SETCHAR_", 
         array(Types::Var), 
         array(Types::Var), 
         array(Types::Var, Types::Int)  ),
-    array( "TYPE", 
+    array( "_TYPE_", 
         array(Types::Var), 
         array(Types::Var, Types::String, Types::Bool, Types::Int, Types::Nil) ),
-    array("JUMPIFEQ__JUMPIFNEQ", 
+    array("_JUMPIFEQ__JUMPIFNEQ_", 
         array(Types::Label), 
         array(Types::Var, Types::Nil, Types::Int), 
         array(Types::Var, Types::Nil, Types::Int)),
-    array("JUMPIFEQ__JUMPIFNEQ", 
+    array("_JUMPIFEQ__JUMPIFNEQ_", 
         array(Types::Label), 
         array(Types::Var, Types::Nil, Types::Bool), 
         array(Types::Var, Types::Nil, Types::Bool)),
-    array("JUMPIFEQ__JUMPIFNEQ", 
+    array("_JUMPIFEQ__JUMPIFNEQ_", 
         array(Types::Label), 
         array(Types::Var, Types::Nil, Types::String), 
         array(Types::Var, Types::Nil, Types::String)),
-    array( "EXIT", 
+    array( "_EXIT_", 
         array(Types::Var, Types::Int) )
 
 );
 
-/*
 
-$GROUP_A = "CREATEFRAME__PUSHFRAME__POPFRAME__RETURN__BREAK"; // bez operandu
-$GROUP_B = "DEFVAR__POPS"; // operand ve tvaru ⟨var⟩
-$GROUP_C = "CALL__LABEL__JUMP"; //operand ve tvaru ⟨label⟩
-$GROUP_D = "PUSHS__WRITE__DPRINT"; //operand ve tvaru <symb>
-$GROUP_E = "ADD__SUB__MUL__IDIV"; // operandy ve tvaru ⟨var⟩ ⟨symb1⟩ ⟨symb2⟩, kde ⟨symb1⟩ a ⟨symb2⟩ jsou typu int/var
-$GROUP_F = "LT__GT__EQ"; // operandy ve tvaru ⟨var⟩ ⟨symb1⟩ ⟨symb2⟩, kde ⟨symb1⟩ a ⟨symb2⟩ jsou stejneho typu
-$GROUP_G = "AND_OR"; // operandy ve tvaru ⟨var⟩ ⟨symb1⟩ ⟨symb2⟩, kde ⟨symb1⟩ a ⟨symb2⟩ jsou typu bool/var
-$GROUP_H = "NOT"; // operandy ve tvaru ⟨var⟩ ⟨symb⟩, kde <symb> je typu bool/var
-$GROUP_I = "INT2CHAR";
-$GROUP_J = "STRI2INT__GETCHAR";
-$GROUP_K = "READ";
-$GROUP_L = "CONCAT";
-$GROUP_M = "STRLEN";
-$GROUP_N = "MOVE";
-$GROUP_O = "SETCHAR";
-$GROUP_P = "TYPE";
-$GROUP_Q = "JUMPIFEQ__JUMPIFNEQ";
-$GROUP_R = "EXIT";
-*/
+// zjednodušená pravidla neuvažující ani základní kontrolu sémantiky operandu
+$RULE_SET = array(
+    array( "_MOVE__NOT__INT2CHAR__STRLEN__TYPE_", // instrukce
+        array(Types::Var), // arg1
+        array(Types::AnyDataType) ), //arg2 
+    array( "_CREATEFRAME__PUSHFRAME__POPFRAME__RETURN__BREAK_" ),
+    array( "_DEFVAR__POPS_", 
+        array(Types::Var) ),
+    array( "_CALL__LABEL__JUMP_", 
+        array(Types::Label) ),
+    array( "_PUSHS__WRITE__DPRINT_", 
+        array(Types::AnyDataType) ),
+    array( "_ADD__SUB__MUL__IDIV__LT__GT__EQ__AND_OR__STRI2INT__GETCHAR__CONCAT_", 
+        array(Types::Var), 
+        array(Types::AnyDataType), 
+        array(Types::AnyDataType) ),
+    array( "_READ_",  
+        array(Types::Var), 
+        array(Types::Type)),
+    array( "_SETCHAR_", 
+        array(Types::Var), 
+        array(Types::AnyDataType), 
+        array(Types::AnyDataType) ),
+    array("_JUMPIFEQ__JUMPIFNEQ_", 
+        array(Types::Label), 
+        array(Types::AnyDataType), 
+        array(Types::AnyDataType) ),
+    array( "_EXIT_", 
+        array(Types::AnyDataType) )
 
-
+);
 
 function check_line($line){
     global $RULE_SET;
@@ -122,11 +131,16 @@ function check_line($line){
 
     $found = false;
     foreach($RULE_SET as $rule){
-        if(str_contains($rule[0], strtoupper($instruction)) && (count($rule) == count($line))){
+        if(str_contains($rule[0], strtoupper("_".$instruction."_")) && (count($rule) == count($line))){
             if(count($rule) == 1)
                 $found = true;
             for($i = 1; $i < count($rule); $i++){
-                if(!in_array($line[$i]->type, $rule[$i], true)){
+                if(($line[$i]->type == Types::Var || $line[$i]->type == Types::Bool 
+                || $line[$i]->type == Types::Int || $line[$i]->type == Types::String || $line[$i]->type == Types::Nil) 
+                && (in_array(Types::AnyDataType, $rule[$i]))){
+                    $found = true;
+                }
+                elseif(!in_array($line[$i]->type, $rule[$i], true)){
                     $found = false;
                     break;
                 }
@@ -160,7 +174,5 @@ function syntax_check($code_lines){
         check_line($code_lines[$i]);
     }
 }
-
-
 
 ?>

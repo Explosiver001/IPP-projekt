@@ -1,5 +1,7 @@
 <?php
 
+ini_set('display_errors', 'stderr');
+
 include 'parse_libs/scanner.php';
 include 'parse_libs/parser.php';
 include 'parse_libs/generator.php';

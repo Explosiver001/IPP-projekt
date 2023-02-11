@@ -12,7 +12,7 @@ function is_instruction($token){
     return false;
 }
 
-function find_type($token){
+function find_type($token, $instruction_expected){
     // regulární výrazy pro povolené tokeny
     $variable_pattern = "/^((LF)|(TF)|(GF))@([-]|[a-z]|[A-Z]|[_$&%*!?])([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])*$/";
     //$string_pattern = "/^string@([!\"]|[%-[]|]|\^|[_-~]|([\\\\][0-9][0-9][0-9]))*$/"; //! stara verze, jen ascii 0-127
@@ -26,7 +26,7 @@ function find_type($token){
     $header_pattern = "/^.IPPcode23$/";
 
     // zjištění jednotlivých typů
-    if(is_instruction($token))
+    if($instruction_expected && is_instruction($token))
         return Types::Instruction;
     if(preg_match($header_pattern, $token))
         return Types::Header;
@@ -80,7 +80,7 @@ function scanner($input_file): array{
         $operation = array(); // výsledný zpracovaný řádek == instrukce + operandy
 
         for ($i = 0; $i < count($split_line); $i++) {
-            $ret_type = find_type($split_line[$i]); // zjištění typu
+            $ret_type = find_type($split_line[$i], $i == 0); // zjištění typu
             if($ret_type == Types::Comment) // v případě komentáře se ukončí zpracování řádku
                 break;
             elseif($i == 0 && $ret_type != Types::Instruction && $ret_type != Types::Header){ // lehká invaze ze syntakticé analýzy, nerozpoznaná instrukce
