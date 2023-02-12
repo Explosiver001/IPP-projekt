@@ -3,10 +3,9 @@ include_once 'vars.php';
 
 function is_instruction($token){
     global $instruction_set;
-    foreach($instruction_set as $instruction){
-        if (!strcmp(strtolower($instruction), strtolower($token)))
-            return true;
-    }
+    if(in_array(strtoupper($token), $instruction_set))
+        return true;
+    
     return false;
 }
 

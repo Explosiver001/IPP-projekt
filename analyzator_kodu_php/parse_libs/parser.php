@@ -28,7 +28,6 @@ $RULE_SET = array(
         array(Types::Var, Types::String, Types::Bool, Types::Int, Types::Nil) ),
     array( "_EXIT_", 
         array(Types::Var, Types::String, Types::Bool, Types::Int, Types::Nil) )
-
 );
 
 function check_line($line){
