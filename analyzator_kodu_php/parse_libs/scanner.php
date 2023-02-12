@@ -51,7 +51,6 @@ function find_type($token, $instruction_expected){
 // funkce lexikální analýzy + uložení tokenů
 function scanner($input_file): array{
     global $stderr; // chybový výstup
-    global $DEBUG_PARAM; 
 
     $code_array = array(); // výstupní data
     // čtení souboru
@@ -101,9 +100,6 @@ function scanner($input_file): array{
         if(!empty($operation)) // prázdný řádek není předán dál
             array_push($code_array, $operation); // přidání zpracovaného řádku pro další operace
     }
-
-    if($DEBUG_PARAM) // pomocný výpis
-        print_r($code_array);
 
     return $code_array; // zpracovaná data pro syntaktickou analýzu a generator
 }
