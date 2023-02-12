@@ -8,7 +8,7 @@ include 'parse_libs/generator.php';
 
 // zpracování argumentů programu
 $short_options = "hd";
-$long_options = array("help", "debug");
+$long_options = array("help", "debug", "stats:", "loc", "comments", "labels", "jumps", "fwjumps", "backjumps", "badjumps", "frequent", "print:", "eol");
 $options = getopt($short_options, $long_options);
 
 $DEBUG_PARAM = false;
