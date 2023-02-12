@@ -8,11 +8,10 @@ include 'parse_libs/generator.php';
 
 // zpracování argumentů programu
 $short_options = "hd";
-$long_options = array("help", "debug", "stats:", "loc", "comments", "labels", "jumps", "fwjumps", "backjumps", "badjumps", "frequent", "print:", "eol");
+$long_options = array("help", "debug");
 $options = getopt($short_options, $long_options);
 
 $DEBUG_PARAM = false;
-$STATS = array();
 
 if(array_key_exists("h", $options) || array_key_exists("help", $options)){
     echo "help\n";
@@ -23,8 +22,6 @@ if(array_key_exists("d", $options) || array_key_exists("debug", $options)){
     $DEBUG_PARAM = true;
     echo "--- Debug mode ACTIVE ---\n";
 }
-
-print_r($argv);
 
 // lexikální analýza a uložení tokenů
 $code_lines = scanner($input_file);
