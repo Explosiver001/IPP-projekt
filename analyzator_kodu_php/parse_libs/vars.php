@@ -39,4 +39,17 @@ class Token{
     }
 } 
 
+enum Stats{
+    case Loc;
+    case Comments;
+    case Labels;
+    case Jumps;
+    case Fwjumps;
+    case Backjumps;
+    case Badjumps;
+    case Frequent;
+    case Print;
+    case Eol;
+}
+
 ?>
