@@ -5,7 +5,7 @@ basic:
 	@$(PHP) -f $(SOURCE) 
 
 d:
-	@$(PHP) -f $(SOURCE) -- -d <test_inputs/zadani.ippcode >flush.log
+	@$(PHP) -f $(SOURCE) -- <test_inputs/zadani.ippcode
 
 run: 
 	$(PHP) -d open_basedir="." -f $(SOURCE) -- -h <test_inputs/zadani.ippcode 
