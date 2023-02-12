@@ -75,7 +75,6 @@ function generate_xml($code){
     $xml->endDocument();
 
     echo $xml->outputMemory(); // výpis XML
-    //file_put_contents("output.xml", $xml->outputMemory()); //TODO odebrat
 }
 
 ?>
