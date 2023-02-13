@@ -14,9 +14,9 @@ def main():
             print("Zprava")
             exit(0)
         if opt[0] == "--input":
-            source_file = opt[1]
-        if opt[0] == "--source":
             input_file = opt[1]
+        if opt[0] == "--source":
+            source_file = opt[1]
 
     print("Source: ", source_file)
     print("Input: ", input_file)

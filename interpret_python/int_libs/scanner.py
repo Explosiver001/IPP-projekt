@@ -1,5 +1,20 @@
 import xml.etree.ElementTree as ET
 import sys
+from enum import Enum
+
+class Types(Enum):
+    OPCODE = 200
+    INT = 201
+    STRING = 202
+    BOOL = 203
+    NIL = 204
+    VAR = 205
+    LABEL = 206
+    NONE = 207
+    ERROR = 208
+    
+    
+
 
 class Token:
     def __init__(self, identif, type, data_type, data):
@@ -23,7 +38,11 @@ class Code:
     def addLine(self, line):
         self.lines.append(line)
     
-    
+def GetType(name):
+    arr = {"var":Types.VAR, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL}
+    if name in arr:
+        return arr[name]
+    return Types.ERROR
 
 def get_tokens(xml_file):
     linenum = 1
@@ -33,12 +52,16 @@ def get_tokens(xml_file):
         
     tree = ET.parse(xml_file)
     root = tree.getroot()
-    
     for instruction in root:
-        #print(instruction.tag, instruction.attrib)
+        line = []
+        token = Token(instruction.attrib['opcode'], Types.OPCODE, None, None)
+        line.append(token)
+        #print(instruction.attrib['opcode'])
         for args in instruction:
             #print(args.tag, args.attrib, args.text)
-            print(args.attrib['type'].ljust(7), "::", args.text)
+            print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
+
+            
         
     
 
