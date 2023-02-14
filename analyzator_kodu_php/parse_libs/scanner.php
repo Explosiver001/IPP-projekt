@@ -3,18 +3,14 @@ include_once 'vars.php';
 
 function is_instruction($token){
     global $instruction_set;
-    if(in_array(strtoupper($token), $instruction_set))
-        return true;
-    
-    return false;
+    return in_array(strtoupper($token), $instruction_set);
 }
 
 function find_type($token, $instruction_expected){
     // regulární výrazy pro povolené tokeny
     $variable_pattern = "/^((LF)|(TF)|(GF))@([-]|[a-z]|[A-Z]|[_$&%*!?])([-]|[a-z]|[A-Z]|[0-9]|[_$&%*!?])*$/";
-    //$string_pattern = "/^string@([!\"]|[%-[]|]|\^|[_-~]|([\\\\][0-9][0-9][0-9]))*$/"; //! stara verze, jen ascii 0-127
     $string_pattern = "/^string@(([^\#\\\\\001-\032])|([\\\\][0-9][0-9][0-9]))*$/";
-    $int_pattern = "/^(int@[+-]\d+)|(int@\d+)$/";
+    $int_pattern = "/^(int@[+-]?\d+)$/";
     $bool_pattern = "/^(bool@true)|(bool@false)$/";
     $nil_pattern = "/^nil@nil$/";
     $type_pattern = "/^(int)|(string)|(bool)$/";
@@ -61,8 +57,7 @@ function scanner($input_file): array{
         $line = str_replace("#", " #", $line); // před komentářem je vždy mezera
         $line = str_replace("# ", "#", $line);
         while(str_contains($line, "\t") || str_contains($line, "  ")){ // odebrání veškerých dvoj-mezer a tabelátorů
-            $to_replace = array("  ", "\t");
-            $line = str_replace($to_replace, " ", $line);
+            $line = str_replace(array("  ", "\t"), " ", $line);
         }
 
         $line = trim($line); // odebrání bílých znaků ze začátku a konce řádku

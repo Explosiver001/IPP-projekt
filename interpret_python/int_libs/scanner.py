@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import sys
 from enum import Enum
+import re
 
 class Types(Enum):
     OPCODE = 200
@@ -32,9 +33,9 @@ class Token:
 class Code:
     def __init__(self):
         self.lines = []
-        self.labels = []
+        self.labels = {}
     def addLabel(self, label, line):
-        self.labels.insert(label,line)
+        self.labels[label] = line
     def addLine(self, line):
         self.lines.append(line)
     
@@ -45,25 +46,37 @@ def GetType(name):
     return Types.ERROR
 
 def get_tokens(xml_file):
-    linenum = 1
+    order = 0
     
     if xml_file != sys.stdin:
         xml_file = open(xml_file, "r")
-        
+    
+    code = Code()
+    
     tree = ET.parse(xml_file)
     root = tree.getroot()
     for instruction in root:
         line = []
+        order = int(instruction.attrib['order'])
         token = Token(instruction.attrib['opcode'], Types.OPCODE, None, None)
         line.append(token)
-        #print(instruction.attrib['opcode'])
         for args in instruction:
-            #print(args.tag, args.attrib, args.text)
-            print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
+            type = GetType(args.attrib['type'])
+            if type != Types.ERROR:
+                token = Token(args.text, type, None, None)
+                line.append(token)
+                if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
+                    code.addLabel(args.text, order)
+                
+            else:
+                print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
+        code.addLine(line)
 
-            
-        
-    
+    print(code.labels)
+    for line in code.lines:
+        for token in line:
+            print(token.identif, end="  ")
+        print()
 
     
     return
