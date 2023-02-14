@@ -27,3 +27,6 @@ Načítá vstupní kód v jazyce IPPcode23 a vyhodnocuje lexikální správnost.
 Je založena na tabulce pravidel pro jazyk IPPcode23. Tabulka obsahuje údaje o počtu a typu proměnných pro jednotlivé instrukce. 
 
 Sémantická analýza je v této části kontrolována jen okrajově. 
+
+## 4) Generátor mezikódu
+Vnitřní reprezentace kódu IPPcode23 je pomocí knihovny XMLWriter převedena do formátu XML, který je vypsán na standardní výstup.

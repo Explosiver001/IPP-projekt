@@ -13,16 +13,51 @@ class Types(Enum):
     LABEL = 206
     NONE = 207
     ERROR = 208
-    
-    
+
+#def parse_string(IPPstring):
+#    if IPPstring is None:
+#        return ""
+#    while IPPstring.find("\\") >= 0:
+#        index = IPPstring.find("\\")
+#        subs = IPPstring[index+1]+IPPstring[index+2]+IPPstring[index+3]
+#        IPPstring = IPPstring.replace('\\'+subs, chr(int(subs)))
+#    return IPPstring
 
 
 class Token:
+    identif = None
+    type = None
+    data_type = None
+    data = None
+    
+    
+    def __parseType(self):
+        if self.type is None:
+            return
+        if self.type is Types.STRING:
+            self.data = self.identif
+            if self.data is None:
+                self.data = ""
+            while self.data.find("\\") >= 0:
+                index = self.data.find("\\")
+                subs = self.data[index+1]+self.data[index+2]+self.data[index+3]
+                self.data = self.data.replace('\\'+subs, chr(int(subs)))
+        elif self.type is Types.INT:
+            self.data = self.identif
+            self.data = int(self.identif)
+        elif self.type is Types.BOOL:
+            self.data = self.identif
+            self.data = True if self.data == "true" else False
+        elif self.type is Types.NIL:
+            self.data = self.identif
+            self.data = None
+            
     def __init__(self, identif, type, data_type, data):
         self.identif = identif
         self.type = type
         self.data_type = data_type
         self.data = data
+        self.__parseType()
     
     def changeDataType(self, data_type):
         self.data_type = data_type
@@ -30,7 +65,11 @@ class Token:
     def changeData(self, data):
         self.data = data
         
+    
+        
 class Code:
+    lines = None
+    labels = None
     def __init__(self):
         self.lines = []
         self.labels = {}
@@ -52,31 +91,33 @@ def get_tokens(xml_file):
         xml_file = open(xml_file, "r")
     
     code = Code()
-    
-    tree = ET.parse(xml_file)
-    root = tree.getroot()
-    for instruction in root:
-        line = []
-        order = int(instruction.attrib['order'])
-        token = Token(instruction.attrib['opcode'], Types.OPCODE, None, None)
-        line.append(token)
-        for args in instruction:
-            type = GetType(args.attrib['type'])
-            if type != Types.ERROR:
-                token = Token(args.text, type, None, None)
-                line.append(token)
-                if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
-                    code.addLabel(args.text, order)
-                
-            else:
-                print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
-        code.addLine(line)
+    try:
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+        for instruction in root:
+            line = []
+            order = int(instruction.attrib['order'])
+            token = Token(instruction.attrib['opcode'], Types.OPCODE, None, None)
+            line.append(token)
+            for args in instruction:
+                type = GetType(args.attrib['type'])
+                if type != Types.ERROR:
+                    token = Token(args.text, type, None, None)
+                    line.append(token)
+                    if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
+                        code.addLabel(args.text, order)
+                    
+                else:
+                    print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
+            code.addLine(line)
+    except:
+        print(Types.ERROR)
 
     print(code.labels)
-    for line in code.lines:
-        for token in line:
-            print(token.identif, end="  ")
-        print()
+    #for line in code.lines:
+    #    for token in line:
+    #        print(token.data, end="  ")
+    #    print()
 
     
-    return
+    return code

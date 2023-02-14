@@ -1,6 +1,7 @@
 import getopt, sys
 
 from int_libs import scanner
+from int_libs import parser
 
 def main():
     source_file = sys.stdin
@@ -19,10 +20,11 @@ def main():
             source_file = opt[1]
 
     print("Source: ", source_file)
-    print("Input: ", input_file)
+    print("Input: ", input_file, "\n")
     
-    scanner.get_tokens(source_file)
+    code = scanner.get_tokens(source_file)
     
+    parser.syntax_analyze(code)
 
 
 
