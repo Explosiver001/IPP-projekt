@@ -134,8 +134,8 @@ class Code:
         self.symtable = Symtable()
     def addLabel(self, label, line):
         self.labels[label] = line
-    def addLine(self, line):
-        self.lines.append(line)
+    def addLine(self, line, order):
+        self.lines.insert(order, line)
     
 def GetType(name):
     arr = {"var":Types.VAR, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL, "type":Types.TYPE}
@@ -168,7 +168,7 @@ def get_tokens(xml_file):
                     
                 else:
                     print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
-            code.addLine(line)
+            code.addLine(line, order)
     except:
         print(Types.ERROR)
 

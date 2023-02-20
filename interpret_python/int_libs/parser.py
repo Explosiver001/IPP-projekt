@@ -69,12 +69,15 @@ from .execution import *
 def analyze_and_execute(code):
     PC = 0 # program counter
     while PC < len(code.lines):
+        #input("INSTR: "+code.lines[PC][0].identif)
         instr = code.lines[PC]
         ret = Execute(instr, code.labels, PC)
         if ret is None:
             PC += 1
         else:
             PC = ret
+            
+        
 
 
 
