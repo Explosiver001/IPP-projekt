@@ -24,7 +24,7 @@ def main():
     
     code = scanner.get_tokens(source_file)
     
-    parser.syntax_analyze(code)
+    parser.analyze_and_execute(code)
 
 
 

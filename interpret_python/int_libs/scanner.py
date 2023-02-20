@@ -12,7 +12,9 @@ class Types(Enum):
     VAR = 205
     LABEL = 206
     NONE = 207
-    ERROR = 208
+    TYPE = 208
+    SYMBOL = 209
+    ERROR = 666
 
 #def parse_string(IPPstring):
 #    if IPPstring is None:
@@ -29,12 +31,13 @@ class Token:
     type = None
     data_type = None
     data = None
-    
+    defined = False
     
     def __parseType(self):
         if self.type is None:
             return
         if self.type is Types.STRING:
+            self.data_type = Types.STRING
             self.data = self.identif
             if self.data is None:
                 self.data = ""
@@ -43,12 +46,15 @@ class Token:
                 subs = self.data[index+1]+self.data[index+2]+self.data[index+3]
                 self.data = self.data.replace('\\'+subs, chr(int(subs)))
         elif self.type is Types.INT:
+            self.data_type = Types.INT
             self.data = self.identif
             self.data = int(self.identif)
         elif self.type is Types.BOOL:
+            self.data_type = Types.BOOL
             self.data = self.identif
             self.data = True if self.data == "true" else False
         elif self.type is Types.NIL:
+            self.data_type = Types.NIL
             self.data = self.identif
             self.data = None
             
@@ -65,21 +71,74 @@ class Token:
     def changeData(self, data):
         self.data = data
         
+    def isSymbol(self):
+        symbols = [Types.VAR, Types.INT, Types.BOOL, Types.STRING, Types.NIL]
+        if self.type in symbols:
+            return True
+        return False
+    def isVar(self):
+        return self.type is Types.VAR
+    def isLabel(self):
+        return self.type is Types.LABEL
+    def isString(self):
+        return self.type is Types.STRING
+    def isInt(self):
+        return self.type is Types.INT
+    def isBool(self):
+        return self.type is Types.BOOL
+    def isNil(self):
+        return self.type is Types.NIL
+    def isType(self):
+        return self.type is Types.TYPE
+    def defineVar(self):
+        self.defined = True
+    def isDefined(self):
+        if (self.type is Types.VAR and self.defined) or self.type is not Types.VAR:
+            return True
+        return False
     
+class Symtable:
+    data = None
+    def __init__(self):
+        self.data = []
+    def add_change_token(self, identif, type, data_type, data):
+        token = None
+        for data_token in self.data:
+            if data_token.identif == identif:
+                token = data_token
         
+        if token is None:
+            token = Token(identif, type, data_type, data)
+            self.data.append(token)
+        else:
+            if data_type is not None:
+                token.data_type = data_type
+            if data is not None:
+                token.data = data
+            
+        return token
+    
+    def print(self):
+        print("Symtable data:")
+        for token in self.data:
+            print("{",token.identif, ";", token.type,";", token.data, "}")
+
 class Code:
+    symtable = None
     lines = None
     labels = None
+    
     def __init__(self):
         self.lines = []
         self.labels = {}
+        self.symtable = Symtable()
     def addLabel(self, label, line):
         self.labels[label] = line
     def addLine(self, line):
         self.lines.append(line)
     
 def GetType(name):
-    arr = {"var":Types.VAR, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL}
+    arr = {"var":Types.VAR, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL, "type":Types.TYPE}
     if name in arr:
         return arr[name]
     return Types.ERROR
@@ -102,10 +161,10 @@ def get_tokens(xml_file):
             for args in instruction:
                 type = GetType(args.attrib['type'])
                 if type != Types.ERROR:
-                    token = Token(args.text, type, None, None)
+                    token = code.symtable.add_change_token(args.text, type, None, None)
                     line.append(token)
                     if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
-                        code.addLabel(args.text, order)
+                        code.addLabel(token, order)
                     
                 else:
                     print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
@@ -113,11 +172,7 @@ def get_tokens(xml_file):
     except:
         print(Types.ERROR)
 
-    print(code.labels)
-    #for line in code.lines:
-    #    for token in line:
-    #        print(token.data, end="  ")
-    #    print()
+
 
     
     return code

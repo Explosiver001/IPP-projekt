@@ -58,7 +58,7 @@ function generate_xml($code){
             $xml->startElement('arg'.$j);
 
             $xml->startAttribute('type');
-            $xml->text(type_parser($line[$j]->type));//todo
+            $xml->text(type_parser($line[$j]->type));
             $xml->endAttribute();
 
             $xml->text($line[$j]->identif);
