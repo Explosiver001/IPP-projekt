@@ -34,35 +34,35 @@ class Token:
     defined = False
     
     def __parseType(self):
-        if self.type is None:
-            return
-        if self.type is Types.STRING:
-            self.data_type = Types.STRING
-            self.data = self.identif
-            if self.data is None:
-                self.data = ""
-            while self.data.find("\\") >= 0:
-                index = self.data.find("\\")
-                subs = self.data[index+1]+self.data[index+2]+self.data[index+3]
-                self.data = self.data.replace('\\'+subs, chr(int(subs)))
-        elif self.type is Types.INT:
-            self.data_type = Types.INT
-            self.data = self.identif
-            self.data = int(self.identif)
-        elif self.type is Types.BOOL:
-            self.data_type = Types.BOOL
-            self.data = self.identif
-            self.data = True if self.data == "true" else False
-        elif self.type is Types.NIL:
-            self.data_type = Types.NIL
-            self.data = self.identif
-            self.data = None
+        try:
+            if self.type is Types.STRING or self.data_type is Types.STRING:
+                self.data_type = Types.STRING
+                if self.data is None:
+                    self.data = ""
+                while self.data.find("\\") >= 0:
+                    index = self.data.find("\\")
+                    subs = self.data[index+1]+self.data[index+2]+self.data[index+3]
+                    self.data = self.data.replace('\\'+subs, chr(int(subs)))
+            elif self.type is Types.INT or self.data_type is Types.INT:
+                self.data_type = Types.INT
+                self.data = int(self.data)
+                
+            elif self.type is Types.BOOL or self.data_type is Types.BOOL:
+                self.data_type = Types.BOOL
+                self.data = True if self.data == "true" else False
+            elif self.type is Types.NIL:
+                self.data_type = Types.NIL
+                self.data = None
+        except:
+                print("ERROR PARSING")
             
     def __init__(self, identif, type, data_type, data):
         self.identif = identif
         self.type = type
         self.data_type = data_type
         self.data = data
+        if type is Types.STRING or type is Types.BOOL or type is Types.INT or type is Types.NIL:
+            self.data = identif
         self.__parseType()
     
     def changeDataType(self, data_type):
@@ -70,6 +70,7 @@ class Token:
         
     def changeData(self, data):
         self.data = data
+        self.__parseType()
         
     def isSymbol(self):
         symbols = [Types.VAR, Types.INT, Types.BOOL, Types.STRING, Types.NIL]
@@ -138,7 +139,7 @@ class Code:
         self.lines.insert(order, line)
     
 def GetType(name):
-    arr = {"var":Types.VAR, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL, "type":Types.TYPE}
+    arr = {"var":Types.VAR, "int":Types.INT, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL, "type":Types.TYPE}
     if name in arr:
         return arr[name]
     return Types.ERROR

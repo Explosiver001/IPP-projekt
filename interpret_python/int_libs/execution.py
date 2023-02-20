@@ -3,7 +3,9 @@ import copy
 
 PC_stack = []
 data_stack = []
-frames = []
+global_frame = []
+local_frame = []
+temporal_frame = []
 
 def Execute(instruction, labels, line):
     opcode = instruction[0]
@@ -24,24 +26,37 @@ def Execute(instruction, labels, line):
                 arg1.data = arg2.data
                 arg1.data_type = arg2.data_type
         case "CREATEFRAME":
-            print("HERE")
+            temporal_frame = []
         case "PUSHFRAME":
-            print("HERE")
+            #local_frame.append(temporal_frame) #! +-
+            return None
         case "POPFRAME":
-            print("HERE")
+            #temporal_frame = local_frame.pop() #! +-
+            return None
         case "DEFVAR":
             if arg1.isDefined():
                 print("ERROR DEFVAR")
             else:
                 arg1.defineVar()
+                if str.find(arg1.identif, "GF@") != -1:
+                    global_frame.append(arg1)
+                elif str.find(arg1.identif, "LF@") != -1:
+                    local_frame.append(arg1)
+                elif str.find(arg1.identif, "TF@") != -1:
+                    temporal_frame.append(arg1)
         case "CALL":
             print("HERE")
         case "RETURN":
             print("HERE")
         case "PUSHS":
-            print("HERE")
+            data_stack.append(arg1.data)
+            data_stack.append(arg1.data_type)
         case "POPS":
-            print("HERE")
+            if len(data_stack) != 0:
+                arg1.data_type = data_stack.pop()
+                arg1.data = data_stack.pop()
+            else:
+                print("ERROR POPS")
         case "ADD":
             print("HERE")
         case "SUB":
@@ -65,9 +80,18 @@ def Execute(instruction, labels, line):
         case "INT2CHAR":
             print("HERE")
         case "STRI2INT":
-            print("HERE")
+            if len(arg2.data) >= arg3.data:
+                print("ERROR STRI2INT")
+            elif not arg1.isDefined():
+                print("ERROR STRI2INT")
+            else:
+                arg1.data = ord(arg2.data[arg3.data])
+                
         case "READ":
-            print("HERE")
+            data = input()
+            arg1.changeDataType(GetType(arg2.identif))
+            print(arg2.identif)
+            arg1.changeData(data)
         case "WRITE":
             if arg1.data_type is Types.NIL:
                 print("",end="")
