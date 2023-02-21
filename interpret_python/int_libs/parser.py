@@ -1,6 +1,6 @@
 from .scanner import *
 from .execution import *
-
+from .shared import *
 
 #!USELESS
 RULE_SET = [
@@ -97,8 +97,32 @@ def checkSem(instruction):
             matchFound = True
             if len(rule) != len(instruction):
                 matchFound = False
-            
-    return False
+            else:
+                for i in range(1, len(rule)):
+                    arg = instruction[i]
+                    if rule[i][0] == Types.VAR and arg.type != Types.VAR:
+                        matchFound = False
+                        break
+                    if rule[i][0] == Types.SYMBOL and not arg.isSymbol():
+                        matchFound = False
+                        break
+                    if rule[i][0] == Types.LABEL and arg.type != Types.LABEL:
+                        matchFound = False
+                        break
+                    if rule[i][0] == Types.TYPE and arg.type != Types.TYPE:
+                        matchFound = False
+                        break
+                    if (rule[i][0] == Types.INT or rule[i][0] == Types.BOOL or rule[i][0] == Types.STRING) and arg.data_type != rule[i][0]: 
+                        matchFound = False
+                        break
+                    if rule[i][1] != arg.isDefined():
+                        matchFound = False
+                        break
+            if not matchFound:
+                print("ERROR", opcode.identif)
+            else:
+                return True
+    Errors.Exit(Errors.SEM, None)
             
 
 
