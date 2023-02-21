@@ -77,20 +77,6 @@ class Token:
         if self.type in symbols:
             return True
         return False
-    def isVar(self):
-        return self.type is Types.VAR
-    def isLabel(self):
-        return self.type is Types.LABEL
-    def isString(self):
-        return self.type is Types.STRING
-    def isInt(self):
-        return self.type is Types.INT
-    def isBool(self):
-        return self.type is Types.BOOL
-    def isNil(self):
-        return self.type is Types.NIL
-    def isType(self):
-        return self.type is Types.TYPE
     def defineVar(self):
         self.defined = True
     def isDefined(self):
@@ -134,6 +120,7 @@ class Code:
     symtable = None
     lines = None
     labels = None
+    __order = []
     
     def __init__(self):
         self.lines = []
@@ -142,7 +129,11 @@ class Code:
     def addLabel(self, label, line):
         self.labels[label] = line
     def addLine(self, line, order):
-        self.lines.insert(order, line)
+        self.lines.append(line)
+        self.__order.append(int(order))
+        self.lines = [val for (_, val) in sorted(zip(self.__order, self.lines), key=lambda x: x[0])]
+        self.__order.sort()
+
     
 def GetType(name):
     arr = {"var":Types.VAR, "int":Types.INT, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL, "type":Types.TYPE}
