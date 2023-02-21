@@ -3,11 +3,10 @@ import copy
 
 PC_stack = []
 data_stack = []
-global_frame = []
 local_frame = []
 temporal_frame = []
 
-def Execute(instruction, labels, line):
+def Execute(instruction, code, line):
     opcode = instruction[0]
     arg1 = None
     arg2 = None
@@ -28,26 +27,30 @@ def Execute(instruction, labels, line):
         case "CREATEFRAME":
             temporal_frame = []
         case "PUSHFRAME":
-            #local_frame.append(temporal_frame) #! +-
-            return None
+            local_frame.append(changeFrame(temporal_frame, code.symtable, "temporal")) #! +-
+            
         case "POPFRAME":
-            #temporal_frame = local_frame.pop() #! +-
-            return None
+            temporal_frame = changeFrame(local_frame.pop(), code.symtable, "local")
+            
         case "DEFVAR":
             if arg1.isDefined():
                 print("ERROR DEFVAR")
             else:
                 arg1.defineVar()
-                if str.find(arg1.identif, "GF@") != -1:
-                    global_frame.append(arg1)
-                elif str.find(arg1.identif, "LF@") != -1:
+                if str.find(arg1.identif, "LF@") != -1:
                     local_frame.append(arg1)
                 elif str.find(arg1.identif, "TF@") != -1:
                     temporal_frame.append(arg1)
         case "CALL":
             print("HERE")
         case "RETURN":
-            print("HERE")
+            if len(PC_stack) >= 0:
+                ret = PC_stack.pop()
+                return ret
+            else:
+                print("ERROR RETURN")
+            
+            
         case "PUSHS":
             data_stack.append(arg1.data)
             data_stack.append(arg1.data_type)
@@ -118,12 +121,12 @@ def Execute(instruction, labels, line):
         case "LABEL":
             return None
         case "JUMP":
-            return labels[arg1]
+            return code.labels[arg1]
         case "JUMPIFEQ":
             if arg2.data_type is arg3.data_type and arg3.data == arg2.data: 
-                return labels[arg1]
+                return code.labels[arg1]
             if arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
-                return labels[arg1]
+                return code.labels[arg1]
 
         case "JUMPIFNEQ":
             print("HERE")
@@ -141,3 +144,21 @@ def checkVarsDefinitions(arg1, arg2, arg3):
     def2 = True if arg2 is None else arg2.isDefined()
     def3 = True if arg3 is None else arg3.isDefined()
     return (def1 and def2 and def3)
+
+def changeFrame(frameOld, symtable, old = "local"):
+    frameNew = []
+    prefix = "LF"
+    if(old != "local"):
+        prefix = "TF"
+    for var in frameOld:
+        ret = symtable.findToken(var.identif)
+        if ret != None:
+            copyDataVar(var, ret)
+            frameNew.append(ret)
+    return frameNew
+    
+def copyDataVar(old, new):
+    new.data = old.data
+    new.data_type = new.data_type
+    new.defined = True
+    old.defined = False

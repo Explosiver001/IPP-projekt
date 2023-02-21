@@ -118,6 +118,12 @@ class Symtable:
                 token.data = data
             
         return token
+
+    def findToken(self, identif):
+        for token in self.data:
+            if token.identif == identif:
+                return token
+        return None
     
     def print(self):
         print("Symtable data:")
