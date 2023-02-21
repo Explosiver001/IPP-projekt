@@ -42,7 +42,7 @@ def Execute(instruction, code, line):
                 elif str.find(arg1.identif, "TF@") != -1:
                     temporal_frame.append(arg1)
         case "CALL":
-            print("HERE")
+            return code.labels[arg1]
         case "RETURN":
             if len(PC_stack) >= 0:
                 ret = PC_stack.pop()
@@ -61,13 +61,20 @@ def Execute(instruction, code, line):
             else:
                 print("ERROR POPS")
         case "ADD":
-            print("HERE")
+            arg1.data = arg2.data + arg3.data
+            arg1.data_type = Types.INT
         case "SUB":
-            print("HERE")
+            arg1.data = arg2.data - arg3.data
+            arg1.data_type = Types.INT
         case "MUL":
-            print("HERE")
+            arg1.data = arg2.data * arg3.data
+            arg1.data_type = Types.INT
         case "IDIV":
-            print("HERE")
+            if arg3.data != 0:
+                arg1.data = arg2.data // arg3.data
+                arg1.data_type = Types.INT
+            else:
+                print("ERROR 57")
         case "LT":
             print("HERE")
         case "GT":
@@ -75,13 +82,20 @@ def Execute(instruction, code, line):
         case "EQ":
             print("HERE")
         case "AND":
-            print("HERE")
+            arg1.data = arg2.data and arg3.data
+            arg1.data_type = Types.BOOL
         case "OR":
-            print("HERE")
+            arg1.data = arg2.data or arg3.data
+            arg1.data_type = Types.BOOL
         case "NOT":
-            print("HERE")
+            arg1.data = not arg2.data
+            arg1.data_type = Types.BOOL
         case "INT2CHAR":
-            print("HERE")
+            arg1.data_type = Types.STRING
+            try:
+                arg1.data = chr(arg2.data)
+            except:
+                print("ERROR 58")
         case "STRI2INT":
             if len(arg2.data) >= arg3.data:
                 print("ERROR STRI2INT")
@@ -111,25 +125,63 @@ def Execute(instruction, code, line):
             else:
                 arg1.data = arg2.data + arg3.data
         case "STRLEN":
-            print("HERE")
+            if not checkVarsDefinitions(arg1, arg2, arg3):
+                print("ERROR STRLEN")
+            else:
+                arg1.data_type = Types.INT
+                arg1.data = len(arg2.data)
+                
         case "GETCHAR":
-            print("HERE")
+            if not checkVarsDefinitions(arg1, arg2, arg3):
+                print("ERROR GETCHAR")
+            else:
+                arg1.data_type = Types.STRING
+                if len(arg2.data) > arg3.data and arg3.data >= 0:
+                    arg1.data = arg2.data[arg3.data]
+                else:
+                    print("ERROR 53")
         case "SETCHAR":
-            print("HERE")
+            if not checkVarsDefinitions(arg1, arg2, arg3):
+                print("ERROR SETCHAR")
+            else:
+                if len(arg1.data) > arg2.data and arg2.data >= 0:
+                    arg1.data[arg2.data] = arg3.data[0]   
+                else:
+                    print("ERROR 53")
         case "TYPE":
-            print("HERE")
+            if not checkVarsDefinitions(arg1, arg2, arg3):
+                print("ERROR TYPE")
+            else:
+                arg1.data_type = Types.STRING
+                match arg2.data_type:
+                    case Types.INT:
+                        arg1.data = "int"
+                    case Types.STRING:
+                        arg1.data = "string"
+                    case Types.BOOL:
+                        arg1.data = "bool"
+                    case Types.NIL:
+                        arg1.data = "nil"
         case "LABEL":
             return None
         case "JUMP":
             return code.labels[arg1]
         case "JUMPIFEQ":
-            if arg2.data_type is arg3.data_type and arg3.data == arg2.data: 
+            if arg2.data_type is arg3.data_type:
+                if arg3.data == arg2.data: 
+                    return code.labels[arg1]
+            elif arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
                 return code.labels[arg1]
-            if arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
-                return code.labels[arg1]
-
+            else:
+                print("ERROR 53")
         case "JUMPIFNEQ":
-            print("HERE")
+            if arg2.data_type is arg3.data_type:
+                if arg3.data != arg2.data: 
+                    return code.labels[arg1]
+            elif arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
+                return code.labels[arg1]
+            else:
+                print("ERROR 53")
         case "EXIT":
             print("HERE")
         case "DPRINT":
