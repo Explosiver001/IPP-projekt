@@ -86,7 +86,6 @@ def Execute(instruction, code, line):
         case "GT":
             print("HERE")
             
-            
         case "EQ":
             print("HERE")
             

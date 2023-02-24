@@ -16,16 +16,6 @@ class Types(Enum):
     SYMBOL = 209
     ERROR = 666
 
-#def parse_string(IPPstring):
-#    if IPPstring is None:
-#        return ""
-#    while IPPstring.find("\\") >= 0:
-#        index = IPPstring.find("\\")
-#        subs = IPPstring[index+1]+IPPstring[index+2]+IPPstring[index+3]
-#        IPPstring = IPPstring.replace('\\'+subs, chr(int(subs)))
-#    return IPPstring
-
-
 class Token:
     identif = None
     type = None

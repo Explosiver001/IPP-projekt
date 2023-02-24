@@ -45,13 +45,12 @@ function find_type($token, $instruction_expected){
 }
 
 // funkce lexikální analýzy + uložení tokenů
-function scanner($input_file): array{
-    global $stderr; // chybový výstup
+function scanner(): array{
 
     $code_array = array(); // výstupní data
     // čtení souboru
-    while(!feof($input_file)){ 
-        $line = fgets($input_file); // načtení řádku
+    while(!feof(STDIN)){ 
+        $line = fgets(STDIN); // načtení řádku
 
         // zpracování řádku do jednodušší podoby
         $line = str_replace("#", " #", $line); // před komentářem je vždy mezera
@@ -76,15 +75,15 @@ function scanner($input_file): array{
                 break;
             elseif($i == 0 && $ret_type != Types::Instruction && $ret_type != Types::Header){ // lehká invaze ze syntakticé analýzy, nerozpoznaná instrukce
                 if(empty($code_array)){
-                    fprintf($stderr, "ERROR:: chyba hlavicky %s\n", $split_line[$i]);
+                    fwrite(STDERR, "ERROR:: chyba hlavicky$split_line[$i]\n");
                     exit(Header_Error);
                 }
                 
-                fprintf($stderr, "ERROR:: neznama instrukce %s\n", $split_line[$i]);
+                fwrite(STDERR, "ERROR:: neznama instrukce $split_line[$i]\n");
                 exit(UnknownCode_Error);
             }
             elseif($ret_type == Types::Error){ // chyba
-                fprintf($stderr, "ERROR:: neznamy operand %s\n", $split_line[$i]);
+                fwrite(STDERR, "ERROR:: neznamy operand $split_line[$i]\n");
                 exit(LexSyn_Error);
             }
             else{ // token je operand

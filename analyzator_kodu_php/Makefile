@@ -8,7 +8,7 @@ d:
 	@$(PHP) -f $(SOURCE) -- <test_inputs/zadani.ippcode
 
 run: 
-	$(PHP) -d open_basedir="." -f $(SOURCE) -- -h <test_inputs/zadani.ippcode 
+	$(PHP) -d open_basedir="." -f $(SOURCE) <test_inputs/zadani.ippcode 
 
 pack:
 	zip xnovak3g.zip parse.php parse_libs/*

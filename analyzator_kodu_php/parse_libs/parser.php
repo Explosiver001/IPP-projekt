@@ -32,12 +32,11 @@ $RULE_SET = array(
 
 function check_line($line){
     global $RULE_SET;
-    global $stderr;
 
     $instruction = $line[0]->identif;
 
     if($line[0]->type == Types::Header){
-        fprintf($stderr, "ERROR:: Prebyvajici hlavicka!\n");
+        fwrite(STDERR, "ERROR:: Prebyvajici hlavicka!\n");
             exit(UnknownCode_Error);
     }
 
@@ -57,23 +56,23 @@ function check_line($line){
         }
     }
     if(!$found){
-        fprintf($stderr, "ERROR:: rule for <%s> with operands:", $instruction);
+        fwrite(STDERR, "ERROR:: rule for <$instruction> with operands:");
         for($i = 1; $i < count($line); $i++){
-            fprintf($stderr, " <%s>", $line[$i]->identif);
+            $output=$line[$i]->identif;
+            fwrite(STDERR, " <$output>");
         }
-        fprintf($stderr, " not found!\n");
+        fwrite(STDERR, " not found!\n");
         exit(LexSyn_Error);
     }
 }
 
 function syntax_check($code_lines){
-    global $stderr;
 
     if(empty($code_lines)) // soubor neobsahoval kod
         return;
 
     if($code_lines[0][0]->type != Types::Header){ // soubor bez hlavičky
-        fprintf($stderr, "ERROR:: Chybejici nebo chybna hlavicka souboru!\n");
+        fwrite(STDERR, "ERROR:: Chybejici nebo chybna hlavicka souboru!\n");
             exit(Header_Error);
     }
     for($i = 1; $i < count($code_lines); $i++){ // zpracování jednotlivých instrukcí
