@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import sys
 from enum import Enum
 import re
+from .shared import *
 
 class Types(Enum):
     OPCODE = 200
@@ -44,7 +45,7 @@ class Token:
                 self.data_type = Types.NIL
                 self.data = None
         except:
-                print("ERROR PARSING")
+            Errors.Exit(Errors.RUN_TYPES)
             
     def __init__(self, identif, type, data_type, data):
         self.identif = identif
@@ -134,8 +135,11 @@ def GetType(name):
 def get_tokens(xml_file):
     order = 0
     
-    if xml_file != sys.stdin:
-        xml_file = open(xml_file, "r")
+    try:
+        if xml_file != sys.stdin:
+            xml_file = open(xml_file, "r")
+    except:
+        Errors.Exit(Errors.INTERNAL)
     
     code = Code()
     try:
@@ -160,7 +164,8 @@ def get_tokens(xml_file):
     except:
         print(Types.ERROR)
 
-
+    if xml_file != sys.stdin:
+        xml_file.close()
 
     
     return code

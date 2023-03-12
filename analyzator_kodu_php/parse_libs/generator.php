@@ -20,8 +20,6 @@ function type_parser($type){
             return "type";
         case Types::Var:
             return "var";
-        default:
-            //exit
     }
 }
 

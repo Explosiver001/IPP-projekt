@@ -1,6 +1,5 @@
-Implementační dokumentace k 1. úloze do IPP 2022/2023
-Jméno a příjmení: Michal Novák
-Login: xnovak3g
+# Implementační dokumentace k 1. úloze do IPP 2022/2023
+### Jméno a příjmení: Michal Novák <br>Login: xnovak3g
 
 # Základní struktura projektu
 
@@ -24,7 +23,14 @@ Načítá vstupní kód v jazyce IPPcode23 a vyhodnocuje lexikální správnost.
 | n     	| {[Identifikator], [typ]} 	| {[Identifikator], [typ]} 	| {[Identifikator], [typ]} 	| {[Identifikator], [typ]} 	|
 
 ## 3) Syntaktická analýza
-Je založena na tabulce pravidel pro jazyk IPPcode23. Tabulka obsahuje údaje o počtu a typu proměnných pro jednotlivé instrukce. 
+Je založena na tabulce pravidel pro jazyk IPPcode23. Tabulka obsahuje údaje o počtu a typu proměnných pro jednotlivé instrukce. Pravidla pro operandy jsou stanoveny následovně:
+- ``<symb>`` - operand musí být typu `var`, `int`, `bool`, `string` nebo `nil`;
+- ``<var>`` - operand musí být typu `var`;
+- ``<label>`` - operand musí být typu `label`;
+- ``<type>`` - operand musí být typu `type`.
+
+Pokud není dodržen typ nebo počet operandů, vyhodnotí se celý řádek jako chybný.
+
 
 Sémantická analýza je v této části kontrolována jen okrajově. 
 

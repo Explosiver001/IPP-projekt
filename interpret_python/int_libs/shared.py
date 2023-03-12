@@ -8,6 +8,7 @@ class Errors:
     RUN_VALMISS = 56
     RUN_OPVAL = 57
     RUN_STRING = 58   
+    INTERNAL = 99
     messages = [
                 "chyba pri semantickych kontrolach vstupniho kodu v IPPcode23 (napr. pouziti nedefinovaneho navesti, redefinice promenne)",
                 "behova chyba interpretace – spatne typy operandu",
@@ -20,6 +21,9 @@ class Errors:
     
     def Exit(code, message = None):
         if message == None:
-            message = Errors.messages[code-Errors.SEM]
+            if code != Errors.INTERNAL:
+                message = Errors.messages[code-Errors.SEM]
+            else:
+                message = "vnitrni chyba interpretu"
         sys.stderr.write(message+"\n")
         exit(code)
