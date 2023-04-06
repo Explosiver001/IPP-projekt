@@ -1,5 +1,5 @@
 from .scanner import *
-from .shared import *
+from .resources import *
 
 class Runner:
     def __init__(self, input):
@@ -37,9 +37,9 @@ class Runner:
             arg2 = instruction[2]
         if len(instruction) >= 2:
             arg1 = instruction[1]
-            
+        
         # print(opcode.identif)
-        # CheckDefinition(opcode, arg1, arg2, arg3, self.local_frame, self.temporal_frame, self.createFrame)
+        
         match opcode.identif:
             case "MOVE":
                 arg1.data = arg2.data
@@ -62,7 +62,7 @@ class Runner:
                 self.createFrame = True
                 
             case "DEFVAR":
-                arg1.defineVar()
+                arg1.DefineVar()
                 if str.find(arg1.identif, "LF@") != -1:
                     self.local_frame[len(self.local_frame)-1].append(arg1)
                 elif str.find(arg1.identif, "TF@") != -1:
@@ -149,8 +149,8 @@ class Runner:
             case "READ":
                 try:
                     data = self.ReadInput()
-                    arg1.changeDataType(GetType(arg2.identif))
-                    arg1.changeData(data)
+                    arg1.ChangeDataType(Scanner.GetType(arg2.identif))
+                    arg1.ChangeData(data)
                 except:
                     arg1.data = ""
                     arg1.data_type = Types.STRING
@@ -275,7 +275,7 @@ class Runner:
             prefix = "LF"
         if len(frameOld) > 0:
             for var in frameOld:
-                ret = symtable.findToken(prefix + var.identif[2:], Types.VAR)
+                ret = symtable.FindToken(prefix + var.identif[2:], Types.VAR)
                 if ret != None:
                     self.copyDataVar(var, ret)
                     frameNew.append(ret)

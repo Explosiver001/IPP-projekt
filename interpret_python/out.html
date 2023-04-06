@@ -13,8 +13,8 @@
 <body>
     <h1 style="text-align: center;">Test result</h1>
     <h2>Tests run: 588</h2>
-    <h2>Passed: 565 </h2>
-    <h2>Failed: 23 </h2>
+    <h2>Passed: 567 </h2>
+    <h2>Failed: 21 </h2>
     <hr>
     <h3 style="text-align: center; color:red">Failed tests</h3><hr><h4>ipp-2023-tests/both/type</h4><table><tr><th>Test name</th><th>Return code</th><th>Expected return code</th><th>Output</th><th>Expected output</th></tr>
 <tr><td>type_unset1</td><td>56</td><td>0</td><td><textarea readonly rows=5 cols=50></textarea></td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
@@ -69,12 +69,6 @@
 
 <tr><td>return_empty_stack2</td><td>0</td><td>56
 </td><td><textarea readonly rows=5 cols=50></textarea></td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
-
-</table>
-<hr><h4>ipp-2023-tests/both/eq</h4><table><tr><th>Test name</th><th>Return code</th><th>Expected return code</th><th>Output</th><th>Expected output</th></tr>
-<tr><td>eq</td><td>53</td><td>0</td><td><textarea readonly rows=5 cols=50>falsetrue</textarea></td><td><textarea readonly rows=5 cols=50>falsetruefalsefalsefalsefalsefalsetruetruefalsefalsetruefalsefalsetruefalsefalsefalsefalsetrue</textarea></td></tr>
-
-<tr><td>eq2</td><td>53</td><td>0</td><td><textarea readonly rows=5 cols=50>falsetrue</textarea></td><td><textarea readonly rows=5 cols=50>falsetruefalsefalsefalsefalsefalsetruetruefalsefalsetruefalsefalsetruefalsefalsefalsefalsetrue</textarea></td></tr>
 
 </table>
 <hr><h3 style="text-align: center; color:green">Passed tests</h3><hr><h4>ipp-2023-tests/both</h4><table><tr><th>Test name</th><th>Return code</th><th>Output</th></tr>
@@ -1038,6 +1032,10 @@ Hello#World
 
 </table>
 <hr><h4>ipp-2023-tests/both/eq</h4><table><tr><th>Test name</th><th>Return code</th><th>Output</th></tr>
+<tr><td>eq</td><td>0</td><td><textarea readonly rows=5 cols=50>falsetruefalsefalsefalsefalsefalsetruetruefalsefalsetruefalsefalsetruefalsefalsefalsefalsetrue</textarea></td></tr>
+
+<tr><td>eq2</td><td>0</td><td><textarea readonly rows=5 cols=50>falsetruefalsefalsefalsefalsefalsetruetruefalsefalsetruefalsefalsetruefalsefalsefalsefalsetrue</textarea></td></tr>
+
 <tr><td>eq_badtype1</td><td>53</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
 
 <tr><td>eq_badtype2</td><td>53</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
