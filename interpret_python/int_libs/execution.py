@@ -1,229 +1,288 @@
 from .scanner import *
 from .shared import *
-import copy
 
-PC_stack = []
-data_stack = []
-local_frame = []
-temporal_frame = []
+class Runner:
+    def __init__(self, input):
+        self.input = input
+        self.PC_stack = []
+        self.data_stack = []
+        self.local_frame = []
+        self.temporal_frame = []
+        self.createFrame = False
 
-def Execute(instruction, code, line):
-    opcode = instruction[0]
-    arg1 = None
-    arg2 = None
-    arg3 = None
-    if len(instruction) >= 4:
-        arg3 = instruction[3]
-    if len(instruction) >= 3:
-        arg2 = instruction[2]
-    if len(instruction) >= 2:
-        arg1 = instruction[1]
-    match opcode.identif:
-        
-        case "MOVE":
-            arg1.data = arg2.data
-            arg1.data_type = arg2.data_type
-            
-        case "CREATEFRAME":
-            temporal_frame = []
-            
-        case "PUSHFRAME":
-            local_frame.append(changeFrame(temporal_frame, code.symtable, "temporal")) #! +-
-            
-        case "POPFRAME":
-            temporal_frame = changeFrame(local_frame.pop(), code.symtable, "local")
-            
-        case "DEFVAR":
-            arg1.defineVar()
-            if str.find(arg1.identif, "LF@") != -1:
-                local_frame.append(arg1)
-            elif str.find(arg1.identif, "TF@") != -1:
-                temporal_frame.append(arg1)
-                
-        case "CALL":
-            return code.labels[arg1]
-        
-        case "RETURN":
-            if len(PC_stack) >= 0:
-                ret = PC_stack.pop()
-                return ret
-            else:
-                print("ERROR RETURN")
-            
-        case "PUSHS":
-            data_stack.append(arg1.data)
-            data_stack.append(arg1.data_type)
-            
-        case "POPS":
-            if len(data_stack) != 0:
-                arg1.data_type = data_stack.pop()
-                arg1.data = data_stack.pop()
-            else:
-                print("ERROR POPS")
-                
-        case "ADD":
-            arg1.data = arg2.data + arg3.data
-            arg1.data_type = Types.INT
-            
-        case "SUB":
-            arg1.data = arg2.data - arg3.data
-            arg1.data_type = Types.INT
-            
-        case "MUL":
-            arg1.data = arg2.data * arg3.data
-            arg1.data_type = Types.INT
-            
-        case "IDIV":
-            if arg3.data != 0:
-                arg1.data = arg2.data // arg3.data
-                arg1.data_type = Types.INT
-            else:
-                print("ERROR 57")
-                
-        case "LT":
-            print("HERE")
-            
-        case "GT":
-            print("HERE")
-            
-        case "EQ":
-            print("HERE")
-            
-        case "AND":
-            arg1.data = arg2.data and arg3.data
-            arg1.data_type = Types.BOOL
-            
-        case "OR":
-            arg1.data = arg2.data or arg3.data
-            arg1.data_type = Types.BOOL
-            
-        case "NOT":
-            arg1.data = not arg2.data
-            arg1.data_type = Types.BOOL
-            
-        case "INT2CHAR":
-            arg1.data_type = Types.STRING
-            try:
-                arg1.data = chr(arg2.data)
-            except:
-                print("ERROR 58")
+    def ReadInput(self):
+        if self.input == None:
+            str = input()
+            return str
+        else:
+            str = self.input.readline()
+            str = str.rstrip("\n")
+            return str
 
-        case "STRI2INT":
-            if len(arg2.data) >= arg3.data:
-                print("ERROR STRI2INT")
-            elif not arg1.isDefined():
-                print("ERROR STRI2INT")
-            else:
-                arg1.data = ord(arg2.data[arg3.data])
-                
-        case "READ":
-            data = input()
-            arg1.changeDataType(GetType(arg2.identif))
-            print(arg2.identif)
-            arg1.changeData(data)
-            
-        case "WRITE":
-            if arg1.data_type is Types.NIL:
-                print("",end="")
-            elif arg1.data_type is Types.BOOL:
-                if arg1.data is True:
-                    print("true", end="")
-                else:
-                    print("false", end="")
-            else:
-                print(arg1.data, end="")
-                
-        case "CONCAT":
-            arg1.data = arg2.data + arg3.data
-            
-        case "STRLEN":
-            arg1.data_type = Types.INT
-            arg1.data = len(arg2.data)
-                
-        case "GETCHAR":
-            arg1.data_type = Types.STRING
-            if len(arg2.data) > arg3.data and arg3.data >= 0:
-                arg1.data = arg2.data[arg3.data]
-            else:
-                print("ERROR 53")
-                
-        case "SETCHAR":
-            if len(arg1.data) > arg2.data and arg2.data >= 0:
-                arg1.data[arg2.data] = arg3.data[0]   
-            else:
-                print("ERROR 53")
-                
-        case "TYPE":
-            arg1.data_type = Types.STRING
-            match arg2.data_type:
-                case Types.INT:
-                    arg1.data = "int"
-                case Types.STRING:
-                    arg1.data = "string"
-                case Types.BOOL:
-                    arg1.data = "bool"
-                case Types.NIL:
-                    arg1.data = "nil"
-                    
-        case "LABEL":
-            return None
-        
-        case "JUMP":
-            return code.labels[arg1]
-        
-        case "JUMPIFEQ":
-            if arg2.data_type is arg3.data_type:
-                if arg3.data == arg2.data: 
-                    return code.labels[arg1]
-            elif arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
-                return code.labels[arg1]
-            else:
-                print("ERROR 53")
-                
-        case "JUMPIFNEQ":
-            if arg2.data_type is arg3.data_type:
-                if arg3.data != arg2.data: 
-                    return code.labels[arg1]
-            elif arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
-                return code.labels[arg1]
-            else:
-                print("ERROR 53")
-                
-        case "EXIT":
-            print("HERE")
-            
-        case "DPRINT":
-            print("HERE")
-            
-        case "BREAK":
-            print("HERE")
-            
-        case _:
-            print("ERROR")
-            
-            
-    return None
-
-def checkVarsDefinitions(arg1, arg2, arg3):
-    def1 = True if arg1 is None else arg1.isDefined()
-    def2 = True if arg2 is None else arg2.isDefined()
-    def3 = True if arg3 is None else arg3.isDefined()
-    return (def1 and def2 and def3)
-
-def changeFrame(frameOld, symtable, old = "local"):
-    frameNew = []
-    prefix = "LF"
-    if(old != "local"):
-        prefix = "TF"
-    for var in frameOld:
-        ret = symtable.findToken(var.identif)
-        if ret != None:
-            copyDataVar(var, ret)
-            frameNew.append(ret)
-    return frameNew
+    def GetLocalFrame(self):
+        return self.local_frame
     
-def copyDataVar(old, new):
-    new.data = old.data
-    new.data_type = new.data_type
-    new.defined = True
-    old.defined = False
+    def GetTemporalFrame(self):
+        return self.temporal_frame, self.createFrame
+
+    def ExecuteInstruction(self, instruction, code, line):
+        opcode = instruction[0]
+        
+        arg1 = None
+        arg2 = None
+        arg3 = None
+        if len(instruction) >= 4:
+            arg3 = instruction[3]
+        if len(instruction) >= 3:
+            arg2 = instruction[2]
+        if len(instruction) >= 2:
+            arg1 = instruction[1]
+            
+        # print(opcode.identif)
+        # CheckDefinition(opcode, arg1, arg2, arg3, self.local_frame, self.temporal_frame, self.createFrame)
+        match opcode.identif:
+            case "MOVE":
+                arg1.data = arg2.data
+                arg1.data_type = arg2.data_type
+                
+            case "CREATEFRAME":
+                self.createFrame = True
+                self.temporal_frame = []
+                
+            case "PUSHFRAME":
+                if self.createFrame == False:
+                    Errors.Exit(Errors.RUN_NOTEX, file=self.input)
+                self.local_frame.append(self.changeFrame(self.temporal_frame, code.symtable, "temporal")) 
+                self.createFrame = False
+                
+            case "POPFRAME":
+                if(len(self.local_frame) <= 0):
+                    Errors.Exit(Errors.RUN_NOTEX, file=self.input)
+                self.temporal_frame = self.changeFrame(self.local_frame.pop(), code.symtable, "local")
+                self.createFrame = True
+                
+            case "DEFVAR":
+                arg1.defineVar()
+                if str.find(arg1.identif, "LF@") != -1:
+                    self.local_frame[len(self.local_frame)-1].append(arg1)
+                elif str.find(arg1.identif, "TF@") != -1:
+                    self.temporal_frame.append(arg1)
+                
+            case "CALL":
+                if arg1 not in code.labels:
+                    Errors.Exit(Errors.SEM, file=self.input)
+                return code.labels[arg1]
+            
+            case "RETURN":              
+                if len(self.PC_stack) > 0:
+                    ret = self.PC_stack.pop()
+                    return ret
+                else:
+                    sys.exit(0)
+            case "PUSHS":
+                self.data_stack.append(arg1.data)
+                self.data_stack.append(arg1.data_type)
+                
+            case "POPS":
+                if len(self.data_stack) != 0:
+                    arg1.data_type = self.data_stack.pop()
+                    arg1.data = self.data_stack.pop()
+                else:
+                    Errors.Exit(Errors.RUN_VALMISS, file=self.input)
+                    
+            case "ADD":
+                arg1.data = arg2.data + arg3.data
+                arg1.data_type = Types.INT
+                
+            case "SUB":
+                arg1.data = arg2.data - arg3.data
+                arg1.data_type = Types.INT
+                
+            case "MUL":
+                arg1.data = arg2.data * arg3.data
+                arg1.data_type = Types.INT
+                
+            case "IDIV":
+                if arg3.data != 0:
+                    arg1.data = arg2.data // arg3.data
+                    arg1.data_type = Types.INT
+                else:
+                    Errors.Exit(Errors.RUN_OPVAL, file=self.input)
+                    
+            case "LT":
+                arg1.data_type = Types.BOOL
+                arg1.data = (arg2.data < arg3.data)
+                
+            case "GT":
+                arg1.data_type = Types.BOOL
+                arg1.data = (arg2.data > arg3.data)
+                
+            case "EQ":
+                arg1.data_type = Types.BOOL
+                arg1.data = (arg2.data == arg3.data)
+                
+            case "AND":
+                arg1.data = arg2.data and arg3.data
+                arg1.data_type = Types.BOOL
+                
+            case "OR":
+                arg1.data = arg2.data or arg3.data
+                arg1.data_type = Types.BOOL
+                
+            case "NOT":
+                arg1.data = not arg2.data
+                arg1.data_type = Types.BOOL
+                
+            case "INT2CHAR":
+                arg1.data_type = Types.STRING
+                try:
+                    arg1.data = chr(arg2.data)
+                except:
+                    Errors.Exit(Errors.RUN_STRING, file=self.input)
+
+            case "STRI2INT":
+                if len(arg2.data) >= arg3.data:
+                    Errors.Exit(Errors.RUN_STRING, file=self.input)
+                else:
+                    arg1.data = ord(arg2.data[arg3.data])
+                    
+            case "READ":
+                try:
+                    data = self.ReadInput()
+                    arg1.changeDataType(GetType(arg2.identif))
+                    arg1.changeData(data)
+                except:
+                    arg1.data = ""
+                    arg1.data_type = Types.STRING
+            case "WRITE":
+                if arg1.data_type is Types.NIL or arg1.data is None:
+                    print("",end="")
+                elif arg1.data_type is Types.BOOL:
+                    if arg1.data is True:
+                        print("true", end="")
+                    else:
+                        print("false", end="")
+                else:
+                    print(arg1.data, end="")
+                    
+            case "CONCAT":
+                arg1.data_type = Types.STRING
+                arg1.data = arg2.data + arg3.data
+                
+            case "STRLEN":
+                arg1.data_type = Types.INT
+                arg1.data = len(arg2.data)
+                    
+            case "GETCHAR":
+                arg1.data_type = Types.STRING
+                if len(arg2.data) > arg3.data and arg3.data >= 0:
+                    arg1.data = arg2.data[arg3.data]
+                else:
+                    Errors.Exit(Errors.RUN_STRING, file=self.input)
+                    
+            case "SETCHAR":
+                if arg1.data_type != Types.STRING:
+                    Errors.Exit(Errors.RUN_TYPES, file=self.input)
+                if arg3.data == "":
+                    Errors.Exit(Errors.RUN_STRING, file=self.input)
+                if len(arg1.data) > arg2.data and arg2.data >= 0:
+                    string = arg1.data
+                    arg1.data = string[0:arg2.data] + arg3.data[0] + string[arg2.data+1:]    
+                else:
+                    Errors.Exit(Errors.RUN_STRING, file=self.input)
+                    
+            case "TYPE":
+                type = arg2.data_type
+                arg1.data_type = Types.STRING
+                match type:
+                    case Types.INT:
+                        arg1.data = "int"
+                    case Types.STRING:
+                        arg1.data = "string"
+                    case Types.BOOL:
+                        arg1.data = "bool"
+                    case Types.NIL:
+                        arg1.data = "nil"
+                        
+            case "LABEL":
+                return None
+            
+            case "JUMP":
+                if arg1 not in code.labels:
+                    Errors.Exit(Errors.SEM, file=self.input)
+                return code.labels[arg1]
+            
+            case "JUMPIFEQ":
+                if arg1 not in code.labels:
+                    Errors.Exit(Errors.SEM, file=self.input)
+                if arg2.data_type is arg3.data_type:
+                    if arg3.data == arg2.data: 
+                        return code.labels[arg1]
+                elif arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
+                    if arg3.data == arg2.data: 
+                        return code.labels[arg1]
+                else:
+                    Errors.Exit(Errors.RUN_TYPES, file=self.input)
+                    
+            case "JUMPIFNEQ":
+                if arg1 not in code.labels:
+                    Errors.Exit(Errors.SEM, file=self.input)
+                if arg2.data_type is arg3.data_type:
+                    if arg3.data != arg2.data: 
+                        return code.labels[arg1]
+                elif arg2.data_type is Types.NIL or arg3.data_type is Types.NIL:
+                    if arg3.data != arg2.data: 
+                        return code.labels[arg1]
+                else:
+                    Errors.Exit(Errors.RUN_TYPES, file=self.input)
+                    
+            case "EXIT":
+                if arg1.data >= 0 and arg1.data <= 49:
+                    exit(arg1.data)
+                else:
+                    Errors.Exit(Errors.RUN_OPVAL, file=self.input)
+                
+            case "DPRINT":
+                if arg1.data_type is Types.NIL or arg1.data is None:
+                    sys.stderr.write("")
+                elif arg1.data_type is Types.BOOL:
+                    if arg1.data is True:
+                        sys.stderr.write("true")
+                    else:
+                        sys.stderr.write("false")
+                else:
+                    sys.stderr.write(arg1.data)
+                
+            case "BREAK":
+                print("HERE")
+                
+            case _:
+                print("ERROR")
+                
+                
+        return None
+
+    def checkVarsDefinitions(arg1, arg2, arg3):
+        def1 = True if arg1 is None else arg1.isDefined()
+        def2 = True if arg2 is None else arg2.isDefined()
+        def3 = True if arg3 is None else arg3.isDefined()
+        return (def1 and def2 and def3)
+
+    def changeFrame(self, frameOld, symtable, old = "local"):
+        frameNew = []
+        prefix = "TF"
+        if(old != "local"):
+            prefix = "LF"
+        if len(frameOld) > 0:
+            for var in frameOld:
+                ret = symtable.findToken(prefix + var.identif[2:], Types.VAR)
+                if ret != None:
+                    self.copyDataVar(var, ret)
+                    frameNew.append(ret)
+        return frameNew
+        
+    def copyDataVar(self, old, new):
+        new.data = old.data
+        new.data_type = new.data_type
+        new.defined = True
+        old.defined = False

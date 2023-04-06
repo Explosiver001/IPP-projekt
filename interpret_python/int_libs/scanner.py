@@ -1,8 +1,9 @@
 import xml.etree.ElementTree as ET
 import sys
 from enum import Enum
-import re
 from .shared import *
+from array import array
+import re
 
 class Types(Enum):
     OPCODE = 200
@@ -36,14 +37,17 @@ class Token:
                     self.data = self.data.replace('\\'+subs, chr(int(subs)))
             elif self.type is Types.INT or self.data_type is Types.INT:
                 self.data_type = Types.INT
+                if self.data.isdigit() == False and not (self.data[1:].isdigit() == True and self.data[0] == '-'):
+                    raise BaseException
                 self.data = int(self.data)
-                
             elif self.type is Types.BOOL or self.data_type is Types.BOOL:
                 self.data_type = Types.BOOL
-                self.data = True if self.data == "true" else False
+                self.data = True if self.data.lower() == "true" else False
             elif self.type is Types.NIL:
                 self.data_type = Types.NIL
                 self.data = None
+        except BaseException:
+            Errors.Exit(Errors.XML_STRUCT)
         except:
             Errors.Exit(Errors.RUN_TYPES)
             
@@ -82,7 +86,7 @@ class Symtable:
     def add_change_token(self, identif, type, data_type, data):
         token = None
         for data_token in self.data:
-            if data_token.identif == identif:
+            if data_token.identif == identif and data_token.type == type:
                 token = data_token
         
         if token is None:
@@ -96,9 +100,9 @@ class Symtable:
             
         return token
 
-    def findToken(self, identif):
+    def findToken(self, identif, type):
         for token in self.data:
-            if token.identif == identif:
+            if token.identif == identif and token.type == type:
                 return token
         return None
     
@@ -109,21 +113,22 @@ class Symtable:
 
 class Code:
     symtable = None
-    lines = None
+    lines = dict()
     labels = None
-    __order = []
     
     def __init__(self):
-        self.lines = []
+        self.lines = dict()
         self.labels = {}
         self.symtable = Symtable()
     def addLabel(self, label, line):
+        if label in self.labels:
+            raise Exception(Errors.SEM)
         self.labels[label] = line
     def addLine(self, line, order):
-        self.lines.append(line)
-        self.__order.append(int(order))
-        self.lines = [val for (_, val) in sorted(zip(self.__order, self.lines), key=lambda x: x[0])]
-        self.__order.sort()
+        if len(self.lines) > 0:
+            if order in self.lines:
+                raise Exception(Errors.XML_STRUCT)
+        self.lines[order] = line
 
     
 def GetType(name):
@@ -145,27 +150,52 @@ def get_tokens(xml_file):
     try:
         tree = ET.parse(xml_file)
         root = tree.getroot()
+        
+        if root.attrib['language'] != "IPPcode23" or root.tag != "program":
+            raise Exception(Errors.XML_STRUCT)
+        
         for instruction in root:
+            if instruction.tag != "instruction":
+                raise Exception(Errors.XML_STRUCT)
             line = []
             order = int(instruction.attrib['order'])
             token = Token(instruction.attrib['opcode'], Types.OPCODE, None, None)
             line.append(token)
+            argsLine={}
+            
             for args in instruction:
+                if re.match("^arg[1-3]$",args.tag) == None:
+                    raise Exception(Errors.XML_STRUCT)
                 type = GetType(args.attrib['type'])
                 if type != Types.ERROR:
                     token = code.symtable.add_change_token(args.text, type, None, None)
-                    line.append(token)
+                    argsLine[args.tag] = token
+                    
                     if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
                         code.addLabel(token, order)
-                    
                 else:
                     print(args.attrib['type'].ljust(7), "::", GetType(args.attrib['type']))
+            
+            argsLine = dict(sorted(argsLine.items()))
+            
+            for argKey in argsLine:
+                line.append(argsLine[argKey])
             code.addLine(line, order)
-    except:
-        print(Types.ERROR)
+    except ET.ParseError:
+        Errors.Exit(Errors.XML_WF)
+    
+    except KeyError:
+        Errors.Exit(Errors.XML_STRUCT)
+        
+    except ValueError:
+        Errors.Exit(Errors.XML_STRUCT)
+    
+    except Exception as Error:
+        Errors.Exit(int(Error.args[0]))
+            
 
     if xml_file != sys.stdin:
         xml_file.close()
 
-    
+
     return code
