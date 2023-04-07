@@ -3,12 +3,6 @@ import sys
 from .resources import *
 import re
 
-
-class XMLStructException(Exception):
-    pass
-class XMLWellFormed(Exception):
-    pass
-
 # Třída pro získání kódu ze vstupu
 class Scanner:
     # převede typ na vnitřní reprezentaci
@@ -51,8 +45,10 @@ class Scanner:
             line = []
             if 'order' not in instruction.attrib.keys() or 'opcode' not in instruction.attrib.keys():
                 Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+            if not instruction.attrib['order'].isdigit():
+                Errors.Exit(Errors.XML_STRUCT, file=xml_file)
             order = int(instruction.attrib['order'])
-            token = Opcode(instruction.attrib['opcode'])
+            token = Opcode(instruction.attrib['opcode'].upper())
             line.append(token)
             argsLine={}
             
