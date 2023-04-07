@@ -1,6 +1,9 @@
 import sys
 from enum import Enum
 
+source_file = sys.stdin
+input_file = None
+
 class Types(Enum):
     OPCODE = 200
     INT = 201
@@ -26,7 +29,7 @@ class Operand:
     data = None
     defined = False
     
-    def __ParseType(self):
+    def ParseType(self):
         try:
             if self.type is Types.STRING or self.data_type is Types.STRING:
                 self.data_type = Types.STRING
@@ -34,12 +37,14 @@ class Operand:
                     self.data = ""
                 while self.data.find("\\") >= 0:
                     index = self.data.find("\\")
+                    if index+3 >= len(self.data):
+                        break
                     subs = self.data[index+1]+self.data[index+2]+self.data[index+3]
                     self.data = self.data.replace('\\'+subs, chr(int(subs)))
             elif self.type is Types.INT or self.data_type is Types.INT:
                 self.data_type = Types.INT
                 if self.data.isdigit() == False and not (self.data[1:].isdigit() == True and self.data[0] == '-'):
-                    raise BaseException
+                    return False
                 self.data = int(self.data)
             elif self.type is Types.BOOL or self.data_type is Types.BOOL:
                 self.data_type = Types.BOOL
@@ -47,8 +52,7 @@ class Operand:
             elif self.type is Types.NIL:
                 self.data_type = Types.NIL
                 self.data = None
-        except BaseException:
-            Errors.Exit(Errors.XML_STRUCT)
+            return True
         except:
             Errors.Exit(Errors.RUN_TYPES)
             
@@ -59,14 +63,14 @@ class Operand:
         self.data = data
         if type is Types.STRING or type is Types.BOOL or type is Types.INT or type is Types.NIL:
             self.data = identif
-        self.__ParseType()
+            
     
     def ChangeDataType(self, data_type):
         self.data_type = data_type
         
     def ChangeData(self, data):
         self.data = data
-        self.__ParseType()
+        return self.ParseType()
         
     def IsSymbol(self):
         symbols = [Types.VAR, Types.INT, Types.BOOL, Types.STRING, Types.NIL]
@@ -92,6 +96,8 @@ class Symtable:
         
         if token is None:
             token = Operand(identif, type, data_type, data)
+            if token.ParseType() == False:
+                return None
             self.data.append(token)
         else:
             if data_type is not None:
@@ -123,13 +129,17 @@ class Code:
         self.symtable = Symtable()
     def AddLabel(self, label, line):
         if label in self.labels:
-            raise Exception(Errors.SEM)
+            return False
         self.labels[label] = line
+        return True
     def AddLine(self, line, order):
+        if order < 1:
+            return False
         if len(self.lines) > 0:
             if order in self.lines:
-                raise Exception(Errors.XML_STRUCT)
+                return False
         self.lines[order] = line
+        return True
 
 
 
@@ -156,9 +166,13 @@ class Errors:
                 RUN_STRING :"behova chyba interpretace – chybna prace s retezcem"
     }
     
-    def Exit(code, message = None, file = None):
+    def Exit(code, message = None, file=None):
         if file != None and file != sys.stdin:
             file.close()
+        if source_file != None and source_file != sys.stdin:
+            source_file.close()
+        if input_file != None and input_file != sys.stdin:
+            input_file.close()
         if message == None:
             if code != Errors.INTERNAL:
                 message = Errors.messages[code]

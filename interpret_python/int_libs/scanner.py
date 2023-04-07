@@ -12,6 +12,7 @@ class XMLWellFormed(Exception):
 # Třída pro získání kódu ze vstupu
 class Scanner:
     # převede typ na vnitřní reprezentaci
+    @staticmethod
     def GetType(name):
         arr = {"var":Types.VAR, "int":Types.INT, "bool":Types.BOOL, "string":Types.STRING, "nil":Types.NIL, "label":Types.LABEL, "type":Types.TYPE}
         if name in arr:
@@ -19,6 +20,7 @@ class Scanner:
         return Types.ERROR
 
     # načtení a zpracování XML souboru
+    @staticmethod
     def GetTokens(xml_file):
         order = 0
 
@@ -31,50 +33,57 @@ class Scanner:
         code = Code()
         try:
             tree = ET.parse(xml_file)
-            root = tree.getroot()
-            
-            if root.attrib['language'] != "IPPcode23" or root.tag != "program":
-                raise Exception(Errors.XML_STRUCT)
-            
-            for instruction in root:
-                if instruction.tag != "instruction":
-                    raise Exception(Errors.XML_STRUCT)
-                line = []
-                order = int(instruction.attrib['order'])
-                token = Opcode(instruction.attrib['opcode'])
-                line.append(token)
-                argsLine={}
-                
-                for args in instruction:
-                    if re.match("^arg[1-3]$",args.tag) == None:
-                        raise Exception(Errors.XML_STRUCT)
-                    type = Scanner.GetType(args.attrib['type'])
-                    if type != Types.ERROR:
-                        token = code.symtable.AddChangeToken(args.text, type, None, None)
-                        argsLine[args.tag] = token
-                        
-                        if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
-                            code.AddLabel(token, order)
-                    else:
-                        print(args.attrib['type'].ljust(7), "::", Scanner.GetType(args.attrib['type']))
-                
-                argsLine = dict(sorted(argsLine.items()))
-                
-                for argKey in argsLine:
-                    line.append(argsLine[argKey])
-                code.AddLine(line, order)
-        except ET.ParseError:
+        except:
             Errors.Exit(Errors.XML_WF, file=xml_file)
+        root = tree.getroot()
         
-        except KeyError:
+        
+        if 'language' not in root.attrib.keys():
             Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+        if root.attrib['language'] != "IPPcode23" or root.tag != "program":
+            Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+
             
-        except ValueError:
-            Errors.Exit(Errors.XML_STRUCT, file=xml_file)
         
-        except Exception as Error:
-            Errors.Exit(int(Error.args[0]), file=xml_file)
+        for instruction in root:
+            if instruction.tag != "instruction":
+                Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+            line = []
+            if 'order' not in instruction.attrib.keys() or 'opcode' not in instruction.attrib.keys():
+                Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+            order = int(instruction.attrib['order'])
+            token = Opcode(instruction.attrib['opcode'])
+            line.append(token)
+            argsLine={}
+            
+            for args in instruction:
+                if re.match("^arg[1-3]$",args.tag) == None:
+                    Errors.Exit(Errors.XML_STRUCT, file=xml_file)
                 
+                if 'type' not in args.attrib.keys():
+                    Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+                type = Scanner.GetType(args.attrib['type'])
+                if type != Types.ERROR:
+                    token = code.symtable.AddChangeToken(args.text, type, None, None)
+                    if token == None:
+                        Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+                    argsLine[args.tag] = token
+                    
+                    if 'opcode' not in instruction.attrib.keys():
+                        Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+                    if type == Types.LABEL and instruction.attrib['opcode'] == "LABEL":
+                        if code.AddLabel(token, order) == False:
+                            Errors.Exit(Errors.SEM, file=xml_file)
+                else:
+                    print(args.attrib['type'].ljust(7), "::", Scanner.GetType(args.attrib['type']))
+            
+            argsLine = dict(sorted(argsLine.items()))
+            
+            for argKey in argsLine:
+                line.append(argsLine[argKey])
+            if code.AddLine(line, order) == False:
+                Errors.Exit(Errors.XML_STRUCT, file=xml_file)
+        
         if xml_file != sys.stdin:
             xml_file.close()
             

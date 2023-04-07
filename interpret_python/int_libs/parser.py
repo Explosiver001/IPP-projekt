@@ -79,7 +79,7 @@ RULE_SET = [
         [Types.STRING, True]],
     [["TYPE"],
         [Types.VAR, False],
-        [Types.SYMBOL, True]],
+        [Types.SYMBOL, False]],
     [["LABEL", "JUMP"],
         [Types.LABEL, False]],
     [["JUMPIFEQ", "JUMPIFNEQ"],
@@ -95,17 +95,19 @@ class Parser:
     def Analyze(instruction, runner):
         localframe = runner.GetLocalFrame()
         temporalframe, createfame =  runner.GetTemporalFrame()
-        Parser.CheckDefinition(instruction, localframe, temporalframe, createfame)
-        Parser.CheckTypes(instruction)
+        ret = Parser.CheckDefinition(instruction, localframe, temporalframe, createfame)
+        if ret != 0:
+            return ret
+        return Parser.CheckSem(instruction)
     
     @staticmethod
-    def CheckTypes(instruction):
+    def CheckSem(instruction):
         opcode = instruction[0]
 
         for argCount in INS_ARG_COUNT:
             if argCount == len(instruction)-1:
                 if opcode.identif not in INS_ARG_COUNT[argCount]:
-                    Errors.Exit(Errors.XML_STRUCT)
+                    return(Errors.XML_STRUCT)
         
         for rule in RULE_SET:
             
@@ -118,7 +120,7 @@ class Parser:
                     for i in range(1, len(rule)):
                         arg = instruction[i]
                         if rule[i][1] == True and arg.type == Types.VAR and arg.data == None and arg.data_type != Types.NIL:
-                            Errors.Exit(Errors.RUN_VALMISS)
+                            return(Errors.RUN_VALMISS)
                             break
                         if rule[i][0] == Types.VAR and arg.type != Types.VAR:
                             matchFound = False
@@ -136,43 +138,48 @@ class Parser:
                             matchFound = False
                             break
                 if not matchFound and not (rule[0] == ["LT", "GT", "EQ"] or rule[0] == ["EQ"]):
-                    Errors.Exit(Errors.RUN_TYPES)
+                    return(Errors.RUN_TYPES)
                 elif matchFound:
-                    return True
-        Errors.Exit(Errors.SEM, None)
+                    return 0
+        return(Errors.SEM, None)
                 
 
     @staticmethod
     def CheckDefinition(instruction, localframe, temporalframe, createFrame):
         opcode = instruction[0]
-
+        
+        if opcode.identif not in (INS_ARG_COUNT[0]  + INS_ARG_COUNT[1] + INS_ARG_COUNT[2] + INS_ARG_COUNT[3]):
+            return(Errors.XML_STRUCT)
+        
         for j in range(1, len(instruction)):
             arg = instruction[j]
+
             if arg.type == Types.VAR and opcode.identif == "DEFVAR":
                 if arg.IsDefined():
-                    Errors.Exit(Errors.SEM)
+                    return(Errors.SEM)
                 if "TF@" in arg.identif:
                     if not createFrame:
-                        Errors.Exit(Errors.RUN_NOTEX)
+                        return(Errors.RUN_NOTEX)
                 elif "LF@" in arg.identif:
                     if len(localframe) < 1:
-                        Errors.Exit(Errors.RUN_NOTEX)
+                        return(Errors.RUN_NOTEX)
             if arg.type == Types.VAR and opcode.identif != "DEFVAR":
                 if "TF@" in arg.identif:
                     if not createFrame:
-                        Errors.Exit(Errors.RUN_NOTEX)
+                        return(Errors.RUN_NOTEX)
                     if not arg.IsDefined():
-                        Errors.Exit(Errors.RUN_VAR)
+                        return(Errors.RUN_VAR)
                     if arg not in temporalframe:
-                        Errors.Exit(Errors.RUN_NOTEX)
+                        return(Errors.RUN_NOTEX)
                 elif "LF@" in arg.identif:
                     if len(localframe) < 1:
-                        Errors.Exit(Errors.RUN_NOTEX)
+                        return(Errors.RUN_NOTEX)
                     if not arg.IsDefined():
-                        Errors.Exit(Errors.RUN_VAR) 
+                        return(Errors.RUN_VAR) 
                     if arg not in localframe[len(localframe)-1]:
-                        Errors.Exit(Errors.RUN_NOTEX)
+                        return(Errors.RUN_NOTEX)
                 elif "GF@" in arg.identif:
                     if not arg.IsDefined():
-                        Errors.Exit(Errors.RUN_VAR)
+                        return(Errors.RUN_VAR)
+        return 0
 

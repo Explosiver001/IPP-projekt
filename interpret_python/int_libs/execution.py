@@ -7,8 +7,10 @@ class Runner:
         self.PC_stack = []
         self.data_stack = []
         self.local_frame = []
+        self.local_frame_backup = []
         self.temporal_frame = []
         self.createFrame = False
+        self.instructionsPreformed = 0
 
     def ReadInput(self):
         if self.input == None:
@@ -38,7 +40,7 @@ class Runner:
         if len(instruction) >= 2:
             arg1 = instruction[1]
         
-        # print(opcode.identif)
+        self.instructionsPreformed += 1
         
         match opcode.identif:
             case "MOVE":
@@ -52,6 +54,11 @@ class Runner:
             case "PUSHFRAME":
                 if self.createFrame == False:
                     Errors.Exit(Errors.RUN_NOTEX, file=self.input)
+                self.SaveLocalFrameData()
+                if len (self.local_frame) > 0:
+                    for var in self.local_frame[len(self.local_frame)-1]:
+                        var.data = None
+                        var.defined = False
                 self.local_frame.append(self.changeFrame(self.temporal_frame, code.symtable, "temporal")) 
                 self.createFrame = False
                 
@@ -59,6 +66,7 @@ class Runner:
                 if(len(self.local_frame) <= 0):
                     Errors.Exit(Errors.RUN_NOTEX, file=self.input)
                 self.temporal_frame = self.changeFrame(self.local_frame.pop(), code.symtable, "local")
+                self.RestoreLocalFrameData()
                 self.createFrame = True
                 
             case "DEFVAR":
@@ -71,14 +79,16 @@ class Runner:
             case "CALL":
                 if arg1 not in code.labels:
                     Errors.Exit(Errors.SEM, file=self.input)
+                self.PC_stack.append(line)
                 return code.labels[arg1]
             
-            case "RETURN":              
+            case "RETURN":          
                 if len(self.PC_stack) > 0:
                     ret = self.PC_stack.pop()
-                    return ret
+                    return ret + 1
                 else:
-                    sys.exit(0)
+                    
+                    Errors.Exit(Errors.RUN_VALMISS, file=self.input)
             case "PUSHS":
                 self.data_stack.append(arg1.data)
                 self.data_stack.append(arg1.data_type)
@@ -141,19 +151,21 @@ class Runner:
                     Errors.Exit(Errors.RUN_STRING, file=self.input)
 
             case "STRI2INT":
-                if len(arg2.data) >= arg3.data:
+                if len(arg2.data) <= arg3.data or arg3.data < 0:
                     Errors.Exit(Errors.RUN_STRING, file=self.input)
                 else:
                     arg1.data = ord(arg2.data[arg3.data])
+                    arg1.data_type = Types.INT
                     
             case "READ":
                 try:
                     data = self.ReadInput()
                     arg1.ChangeDataType(Scanner.GetType(arg2.identif))
-                    arg1.ChangeData(data)
-                except:
+                    if arg1.ChangeData(data) == False:
+                        raise EOFError
+                except EOFError:
                     arg1.data = ""
-                    arg1.data_type = Types.STRING
+                    arg1.data_type = Types.NIL
             case "WRITE":
                 if arg1.data_type is Types.NIL or arg1.data is None:
                     print("",end="")
@@ -203,7 +215,9 @@ class Runner:
                         arg1.data = "bool"
                     case Types.NIL:
                         arg1.data = "nil"
-                        
+                    case _:
+                        arg1.data = ""
+                    
             case "LABEL":
                 return None
             
@@ -254,10 +268,16 @@ class Runner:
                     sys.stderr.write(arg1.data)
                 
             case "BREAK":
-                print("HERE")
-                
+                sys.stderr.write("Pocet vykonanych instrukci: " + self.instructionsPreformed + "\nPozice v kodu:\n\tORDER: " + line + "\n\tOPCODE: " + opcode)
+                sys.stderr.write("LOCAL FRAME:")
+                for token in self.local_frame[len(self.local_frame)-1]:
+                    sys.stderr.write("\t" + token.identif + "\t" + token.data + "\t" + token.data_type)
+                if self.createFrame:
+                    for token in self.temporal_frame:
+                        sys.stderr.write("\t" + token.identif + "\t" + token.data + "\t" + token.data_type)
+
             case _:
-                print("ERROR")
+                Errors.Exit(Errors.INTERNAL)
                 
                 
         return None
@@ -279,10 +299,30 @@ class Runner:
                 if ret != None:
                     self.copyDataVar(var, ret)
                     frameNew.append(ret)
+                var.defined = False
         return frameNew
         
     def copyDataVar(self, old, new):
         new.data = old.data
-        new.data_type = new.data_type
+        new.data_type = old.data_type
         new.defined = True
         old.defined = False
+    
+    def SaveLocalFrameData(self):
+        backup = {}
+        if len(self.local_frame) > 0:
+            for var in self.local_frame[len(self.local_frame)-1]:
+                backup[var] = [var.data, var.IsDefined(), var.data_type]
+        self.local_frame_backup.append(backup)
+        
+    def RestoreLocalFrameData(self):
+        if len(self.local_frame_backup) < 1:
+            return
+        backup = self.local_frame_backup.pop()
+        if len(self.local_frame) < 1:
+            return
+        for var in self.local_frame[len(self.local_frame)-1]:
+            var.data = backup[var][0]
+            var.defined = backup[var][1]
+            var.data_type = backup[var][2]
+        

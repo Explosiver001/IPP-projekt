@@ -12,10 +12,9 @@ class Interpret:
         self.input_file = input_file
     
     def Start(self):
-        code = Scanner.GetTokens(self.source_file) # získání kódu z XML soubo+ sourceru
+        code = Scanner.GetTokens(self.source_file) # získání kódu z XML souboru
         if len(code.lines) == 0: # kód je prázdný
             sys.exit(0)
-
         if self.input_file != None:
             try:
                 self.input_file = open(self.input_file, "r")
@@ -28,7 +27,9 @@ class Interpret:
         while PC <= max(code.lines.keys()) :
             if PC in code.lines.keys():
                 instr = code.lines[PC]
-                Parser.Analyze(instr, runner)
+                ret = Parser.Analyze(instr, runner)
+                if ret != 0:
+                    resources.Errors.Exit(ret, file=self.input_file)
                 ret = runner.ExecuteInstruction(instr, code, PC)
                 if ret is None:
                     PC += 1
@@ -68,6 +69,7 @@ def main():
         
     interpret = Interpret(source_file, input_file)
     interpret.Start()
+
 
 
 
