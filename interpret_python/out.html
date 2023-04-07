@@ -13,25 +13,10 @@
 <body>
     <h1 style="text-align: center;">Test result</h1>
     <h2>Tests run: 588</h2>
-    <h2>Passed: 583 </h2>
-    <h2>Failed: 5 </h2>
+    <h2>Passed: 588 </h2>
+    <h2>Failed: 0 </h2>
     <hr>
-    <h3 style="text-align: center; color:red">Failed tests</h3><hr><h4>ipp-2023-tests/both/read</h4><table><tr><th>Test name</th><th>Return code</th><th>Expected return code</th><th>Output</th><th>Expected output</th></tr>
-<tr><td>read_badval</td><td>0</td><td>0</td><td><textarea readonly rows=5 cols=50>nilfalseboolstring</textarea></td><td><textarea readonly rows=5 cols=50>nilnilnil</textarea></td></tr>
-
-</table>
-<hr><h4>ipp-2023-tests/both/functionCalls</h4><table><tr><th>Test name</th><th>Return code</th><th>Expected return code</th><th>Output</th><th>Expected output</th></tr>
-<tr><td>functions10</td><td>55</td><td>55</td><td><textarea readonly rows=5 cols=50>12</textarea></td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
-
-<tr><td>functions4</td><td>55</td><td>55</td><td><textarea readonly rows=5 cols=50>1</textarea></td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
-
-<tr><td>functions5</td><td>55</td><td>55
-</td><td><textarea readonly rows=5 cols=50>1</textarea></td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
-
-<tr><td>functions9</td><td>55</td><td>55</td><td><textarea readonly rows=5 cols=50>12</textarea></td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
-
-</table>
-<hr><h3 style="text-align: center; color:green">Passed tests</h3><hr><h4>ipp-2023-tests/both</h4><table><tr><th>Test name</th><th>Return code</th><th>Output</th></tr>
+    <h3 style="text-align: center; color:red">Failed tests</h3><hr><h3 style="text-align: center; color:green">Passed tests</h3><hr><h4>ipp-2023-tests/both</h4><table><tr><th>Test name</th><th>Return code</th><th>Output</th></tr>
 <tr><td>no-instructions</td><td>0</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
 
 </table>
@@ -363,6 +348,8 @@ Hello#World
 <tr><td>read3</td><td>0</td><td><textarea readonly rows=5 cols=50>stringabc ABCstring!@#$%^&*{}\string</textarea></td></tr>
 
 <tr><td>read4</td><td>0</td><td><textarea readonly rows=5 cols=50>trueboolfalsebooltrueboolfalseboolfalsebool</textarea></td></tr>
+
+<tr><td>read_badval</td><td>0</td><td><textarea readonly rows=5 cols=50>nilnilnil</textarea></td></tr>
 
 <tr><td>read_undef1</td><td>54</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
 
@@ -960,6 +947,8 @@ Hello#World
 <hr><h4>ipp-2023-tests/both/functionCalls</h4><table><tr><th>Test name</th><th>Return code</th><th>Output</th></tr>
 <tr><td>functions</td><td>0</td><td><textarea readonly rows=5 cols=50>121</textarea></td></tr>
 
+<tr><td>functions10</td><td>55</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
+
 <tr><td>functions11</td><td>0</td><td><textarea readonly rows=5 cols=50>1223344556677889910hah</textarea></td></tr>
 
 <tr><td>functions12</td><td>0</td><td><textarea readonly rows=5 cols=50>120</textarea></td></tr>
@@ -968,11 +957,17 @@ Hello#World
 
 <tr><td>functions3</td><td>0</td><td><textarea readonly rows=5 cols=50>1231</textarea></td></tr>
 
+<tr><td>functions4</td><td>55</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
+
+<tr><td>functions5</td><td>55</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
+
 <tr><td>functions6</td><td>0</td><td><textarea readonly rows=5 cols=50>12</textarea></td></tr>
 
 <tr><td>functions7</td><td>0</td><td><textarea readonly rows=5 cols=50>2345678910</textarea></td></tr>
 
 <tr><td>functions8</td><td>0</td><td><textarea readonly rows=5 cols=50>110</textarea></td></tr>
+
+<tr><td>functions9</td><td>55</td><td><textarea readonly rows=5 cols=50></textarea></td></tr>
 
 </table>
 <hr><h4>ipp-2023-tests/both/func</h4><table><tr><th>Test name</th><th>Return code</th><th>Output</th></tr>

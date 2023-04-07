@@ -197,9 +197,7 @@ class Errors:
     }
     
     # ukončí interpret s chybovým kódem a hláškou
-    def Exit(code, message = None, file=None):
-        if file != None and file != sys.stdin:
-            file.close()
+    def Exit(code, message = None):
         if source_file != None and source_file != sys.stdin:
             source_file.close()
         if input_file != None and input_file != sys.stdin:

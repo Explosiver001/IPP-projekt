@@ -28,13 +28,17 @@ class Interpret:
 
         runner = Runner(self.input_file) # inicializace 
         
+        # uzavření souboru s uživatelskými vstupy (vstupy jsou již uloženy interně)
+        if self.input_file != None:
+            self.input_file.close()
+        
         PC = 0 # Programový čítač (umístění v programu)
         while PC <= max(code.lines.keys()) :
             if PC in code.lines.keys(): 
                 instr = code.lines[PC]
                 ret = Parser.Analyze(instr, runner) # syntaktická a sémantická analýza
                 if ret != 0:
-                    resources.Errors.Exit(ret, file=self.input_file)
+                    resources.Errors.Exit(ret)
                 ret = runner.ExecuteInstruction(instr, code, PC) # vykonání instrukce
                 if ret is None: 
                     PC += 1
@@ -43,9 +47,7 @@ class Interpret:
             else: # přeskočení chybějících pořadí
                 PC += 1
         
-        # uzavření souboru s uživatelskými vstupy
-        if self.input_file != None:
-            self.input_file.close()
+        
 
 
 

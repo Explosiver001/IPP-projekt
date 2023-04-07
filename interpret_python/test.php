@@ -643,7 +643,7 @@ while($file != NULL) {
         $expectedRc = getFileContent($file->rcFile->getName().".rc");
         $output = getFileContent($outputFile);
 
-        if(diff2files($outputFile, $srcFile.".out") && $expectedRc == strval($rc)) {
+        if($expectedRc == strval($rc) && (diff2files($outputFile, $srcFile.".out") || $expectedRc != 0)) {
             // Outputs and return codes are equal
             $testEnv->add($testName, $testPath, $output, $rc, $expectedOut, $expectedRc, True);
         } else {

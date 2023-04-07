@@ -105,7 +105,7 @@ RULE_SET = [
 class Parser:
     @staticmethod
     def Analyze(instruction, runner):
-        localframe = runner.GetLocalFrame() # získání lokálního rámce rámce ze spouštěče
+        localframe = runner.GetLocalFrames() # získání lokálního rámce rámce ze spouštěče
         temporalframe, createfame =  runner.GetTemporalFrame() # získání dočasného rámce ze spouštěče
         ret = Parser.CheckDefinition(instruction, localframe, temporalframe, createfame) # ověření definic
         if ret != 0:
