@@ -1,8 +1,13 @@
+#
+# soubor:   parser.py
+# autor:    Michal Novák <xnovak3>  
+#   
+
 from .scanner import *
 from .execution import *
 from .resources import *
 
-
+# počet instrukcí a jednotlivé instrukce
 INS_ARG_COUNT = {
     0: ["CREATEFRAME", "PUSHFRAME", "POPFRAME", "RETURN", "BREAK"],
     1: ["DEFVAR", "POPS", "CALL", "PUSHS", "WRITE", "DPRINT", "LABEL", "JUMP", "EXIT"],
@@ -10,6 +15,12 @@ INS_ARG_COUNT = {
     3: ["ADD", "SUB", "MUL", "IDIV", "LT", "GT", "EQ", "CONCAT", "AND", "OR", "STRI2INT", "GETCHAR", "SETCHAR", "JUMPIFEQ", "JUMPIFNEQ"]
 }
 
+# seznam sémantický pravidel
+# pravidla jsou ve tvaru:
+# [[seznam instrukcí, pro která pravidlo platí],
+#   [datový typ argumentu, musí argument mít uloženou hodnotu v datech (True/False)],
+#   [datový typ argumentu, musí argument mít uloženou hodnotu v datech (True/False)],
+#   [datový typ argumentu, musí argument mít uloženou hodnotu v datech (True/False)]]
 RULE_SET = [
     [["MOVE"],
         [Types.VAR, False], 
@@ -90,31 +101,32 @@ RULE_SET = [
         [Types.INT, True]],
 ]
 
+# syntaktická a sémantická analýza
 class Parser:
     @staticmethod
     def Analyze(instruction, runner):
-        localframe = runner.GetLocalFrame()
-        temporalframe, createfame =  runner.GetTemporalFrame()
-        ret = Parser.CheckDefinition(instruction, localframe, temporalframe, createfame)
+        localframe = runner.GetLocalFrame() # získání lokálního rámce rámce ze spouštěče
+        temporalframe, createfame =  runner.GetTemporalFrame() # získání dočasného rámce ze spouštěče
+        ret = Parser.CheckDefinition(instruction, localframe, temporalframe, createfame) # ověření definic
         if ret != 0:
             return ret
-        return Parser.CheckSem(instruction)
+        return Parser.CheckSem(instruction) # ověření datových typů
     
     @staticmethod
     def CheckSem(instruction):
-        opcode = instruction[0]
+        opcode = instruction[0] # operační kód instrukce
 
+        # ověření počtu argumentů
         for argCount in INS_ARG_COUNT:
             if argCount == len(instruction)-1:
                 if opcode.identif not in INS_ARG_COUNT[argCount]:
                     return(Errors.XML_STRUCT)
         
+        # porovnání řádku instrukce se seznamem pravidel
         for rule in RULE_SET:
-            
             if opcode.identif in rule[0]:
                 matchFound = True
-                # print(rule)
-                if len(rule) != len(instruction):
+                if len(rule) != len(instruction): 
                     matchFound = False
                 else:
                     for i in range(1, len(rule)):
@@ -137,23 +149,24 @@ class Parser:
                         if (rule[i][0] == Types.INT or rule[i][0] == Types.BOOL or rule[i][0] == Types.STRING or rule[i][0] == Types.NIL) and arg.data_type != rule[i][0]: 
                             matchFound = False
                             break
-                if not matchFound and not (rule[0] == ["LT", "GT", "EQ"] or rule[0] == ["EQ"]):
+                if not matchFound and not (rule[0] == ["LT", "GT", "EQ"] or rule[0] == ["EQ"]): # shoda se nenašla
                     return(Errors.RUN_TYPES)
-                elif matchFound:
+                elif matchFound: # nalezena shoda v pravidlech
                     return 0
-        return(Errors.SEM, None)
-                
+        return(Errors.RUN_TYPES, None) # pravidlo se shodou nenalezeno
 
+    # kontrola definic
     @staticmethod
     def CheckDefinition(instruction, localframe, temporalframe, createFrame):
         opcode = instruction[0]
         
+        # oveření správnosti operačního kódu
         if opcode.identif not in (INS_ARG_COUNT[0]  + INS_ARG_COUNT[1] + INS_ARG_COUNT[2] + INS_ARG_COUNT[3]):
             return(Errors.XML_STRUCT)
         
         for j in range(1, len(instruction)):
-            arg = instruction[j]
-
+            arg = instruction[j] # aktuálně kontrolovaný argument
+            
             if arg.type == Types.VAR and opcode.identif == "DEFVAR":
                 if arg.IsDefined():
                     return(Errors.SEM)

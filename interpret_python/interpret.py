@@ -1,3 +1,8 @@
+#
+# soubor:   interpret.py
+# autor:    Michal Novák <xnovak3>  
+#   
+
 import getopt, sys
 
 from int_libs.scanner import Scanner
@@ -5,7 +10,7 @@ from int_libs.parser import Parser
 from int_libs.execution import Runner
 from int_libs import resources
 
-
+# třída propojující jednotlivé části interpretu
 class Interpret:
     def __init__(self, source_file, input_file):
         self.source_file = source_file
@@ -25,28 +30,29 @@ class Interpret:
         
         PC = 0 # Programový čítač (umístění v programu)
         while PC <= max(code.lines.keys()) :
-            if PC in code.lines.keys():
+            if PC in code.lines.keys(): 
                 instr = code.lines[PC]
-                ret = Parser.Analyze(instr, runner)
+                ret = Parser.Analyze(instr, runner) # syntaktická a sémantická analýza
                 if ret != 0:
                     resources.Errors.Exit(ret, file=self.input_file)
-                ret = runner.ExecuteInstruction(instr, code, PC)
-                if ret is None:
+                ret = runner.ExecuteInstruction(instr, code, PC) # vykonání instrukce
+                if ret is None: 
                     PC += 1
                 else:
                     PC = ret
-            else:
+            else: # přeskočení chybějících pořadí
                 PC += 1
-                
+        
+        # uzavření souboru s uživatelskými vstupy
         if self.input_file != None:
             self.input_file.close()
 
 
 
-
+# zpracování argumentů příkazové řádky a spuštění interpretace
 def main():
-    source_file = sys.stdin
-    input_file = None
+    source_file = sys.stdin # soubor s kódem
+    input_file = None # soubor s uživatelskými vstupy (pokud None, použije se STDIN)
     
     optionUsed = False
     
@@ -55,7 +61,7 @@ def main():
     opts, args = getopt.getopt(sys.argv[1:], short_options, long_options)
     for opt in opts:
         if opt[0] == "--help" or opt[0] == "-h":
-            print("Zprava")
+            print("Interpret jazyka IPPcode23 ulozeneho v XML reprezentaci. Verze pro python 3.10.\nMoznosti pri spusteni:\n\t--help, -h\tVypise tuto zpravu\n\t--input=file\tNastavi file jako uzivatelsky vstup\n\t--source=file\tNastavi file jako vstup zdrojoveho kodu\nAlespon jeden z prepinacu --input a --source musi byt pouzit")
             exit(0)
         if opt[0] == "--input":
             optionUsed = True
@@ -72,6 +78,6 @@ def main():
 
 
 
-
+# vstupní bod programu
 if __name__ == "__main__":
     main()

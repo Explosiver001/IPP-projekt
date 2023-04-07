@@ -1,3 +1,8 @@
+#
+# soubor:   execution.py
+# autor:    Michal Novák <xnovak3>  
+#   
+
 from .scanner import *
 from .resources import *
 

@@ -1,9 +1,15 @@
+#
+# soubor:   resources.py
+# autor:    Michal Novák <xnovak3>  
+#   
+
 import sys
 from enum import Enum
 
 source_file = sys.stdin
 input_file = None
 
+# vnitřní reprezentace typů
 class Types(Enum):
     OPCODE = 200
     INT = 201
@@ -17,24 +23,28 @@ class Types(Enum):
     SYMBOL = 209
     ERROR = 666
 
+# třída pro operační kódy
 class Opcode:
     identif = None
     def __init__(self, identif):
         self.identif = identif
 
+# třída pro agrumenty (operandy)
 class Operand:
-    identif = None
-    type = None
-    data_type = None
-    data = None
-    defined = False
+    identif = None      # název
+    type = None         # typ vnější
+    data_type = None    # typ vnitřní 
+    data = None         # data argumetu
+    defined = False     # je li argument definován
     
+    # zpracování dat na patřičný datový typ
     def ParseType(self):
         try:
             if self.type is Types.STRING or self.data_type is Types.STRING:
                 self.data_type = Types.STRING
                 if self.data is None:
                     self.data = ""
+                # náhrada escape-sekvencí za znaky
                 while self.data.find("\\") >= 0:
                     index = self.data.find("\\")
                     if index+3 >= len(self.data):
@@ -54,8 +64,9 @@ class Operand:
                 self.data = None
             return True
         except:
-            Errors.Exit(Errors.RUN_TYPES)
-            
+            return(Errors.RUN_TYPES)
+    
+    # inicializace
     def __init__(self, identif, type, data_type, data):
         self.identif = identif
         self.type = type
@@ -63,37 +74,48 @@ class Operand:
         self.data = data
         if type is Types.STRING or type is Types.BOOL or type is Types.INT or type is Types.NIL:
             self.data = identif
-            
-    
+
+    # změna datového typu
     def ChangeDataType(self, data_type):
         self.data_type = data_type
-        
+
+    # změna dat
     def ChangeData(self, data):
         self.data = data
         return self.ParseType()
-        
+
+    # ověření, že operand je symbol
     def IsSymbol(self):
         symbols = [Types.VAR, Types.INT, Types.BOOL, Types.STRING, Types.NIL]
         if self.type in symbols:
             return True
         return False
+
+    # definice proměnné
     def DefineVar(self):
         self.defined = True
+
+    # ověření, že je proměnná definovaná
     def IsDefined(self):
         if (self.type is Types.VAR and self.defined) or self.type is not Types.VAR:
             return True
         return False
-    
+
+# třída tabulky symbolů
 class Symtable:
-    data = None
+    data = None # seznam symbolů
     def __init__(self):
         self.data = []
+    
+    # přidání tokenu do tabulky symbolů
     def AddChangeToken(self, identif, type, data_type, data):
         token = None
+        # token existuje, nevytváří se nový token
         for data_token in self.data:
             if data_token.identif == identif and data_token.type == type:
                 token = data_token
         
+        # token neexistuje, vytváří se nový token
         if token is None:
             token = Operand(identif, type, data_type, data)
             if token.ParseType() == False:
@@ -104,34 +126,42 @@ class Symtable:
                 token.data_type = data_type
             if data is not None:
                 token.data = data
-            
+        
+        # nový/nalezený token
         return token
 
+    # vyhledá token v tabulce symbolů
     def FindToken(self, identif, type):
         for token in self.data:
             if token.identif == identif and token.type == type:
                 return token
         return None
     
+    # vytiskne tabulku symbolů (debug)
     def print(self):
         print("Symtable data:")
         for token in self.data:
             print("{",token.identif, ";", token.type,";", token.data, "}")
 
+# třída pro uchování kódu
 class Code:
-    symtable = None
-    lines = dict()
-    labels = None
+    symtable = None # tabulka symbolů
+    lines = dict() # jednotlivé řádky instrukcí
+    labels = None # seznam návěští
     
     def __init__(self):
         self.lines = dict()
         self.labels = {}
         self.symtable = Symtable()
+    
+    # přidání návěští do seznamu
     def AddLabel(self, label, line):
         if label in self.labels:
             return False
         self.labels[label] = line
         return True
+
+    # přidání řádku s instrukcí
     def AddLine(self, line, order):
         if order < 1:
             return False
@@ -142,7 +172,7 @@ class Code:
         return True
 
 
-
+# chyby a chybové ukončení
 class Errors:
     XML_WF = 31
     XML_STRUCT = 32
@@ -166,6 +196,7 @@ class Errors:
                 RUN_STRING :"behova chyba interpretace – chybna prace s retezcem"
     }
     
+    # ukončí interpret s chybovým kódem a hláškou
     def Exit(code, message = None, file=None):
         if file != None and file != sys.stdin:
             file.close()
