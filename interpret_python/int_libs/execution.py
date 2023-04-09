@@ -109,13 +109,13 @@ class Runner:
                     Errors.Exit(Errors.RUN_VALMISS)
 
             case "PUSHS":
-                self.data_stack.append(arg1.data)
-                self.data_stack.append(arg1.data_type)
+                self.data_stack.append([arg1.data, arg1.data_type])
 
             case "POPS":
                 if len(self.data_stack) != 0:
-                    arg1.data_type = self.data_stack.pop()
-                    arg1.data = self.data_stack.pop()
+                    data = self.data_stack.pop()
+                    arg1.data_type = data[1]
+                    arg1.data = data[0]
                 else:
                     Errors.Exit(Errors.RUN_VALMISS)
 
@@ -296,10 +296,153 @@ class Runner:
                     for token in self.temporal_frame:
                         sys.stderr.write("\t" + token.identif + "\t" + token.data + "\t" + token.data_type)
 
+
+            # Instrukce rozšíření STACK
+            case "CLEARS":
+                self.data_stack = []
+
+            case "ADDS":
+                symb1, symb2 = self.__stack_get2ints()
+                self.data_stack.append([symb1 + symb2, Types.INT])
+
+            case "SUBS":
+                symb1, symb2 = self.__stack_get2ints()
+                self.data_stack.append([symb1 - symb2, Types.INT])
+
+            case "MULS":
+                symb1, symb2 = self.__stack_get2ints()
+                self.data_stack.append([symb1 * symb2, Types.INT])
+                
+            case "IDIVS":
+                symb1, symb2 = self.__stack_get2ints()
+                if symb2 == 0:
+                    Errors.Exit(Errors.RUN_OPVAL)
+                self.data_stack.append([symb1 // symb2, Types.INT])
+
+            case "EQS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 == type2:
+                    if symb1 == symb2: 
+                        self.data_stack.append([True, Types.BOOL])
+                    else:
+                        self.data_stack.append([False, Types.BOOL])
+                elif type1 == Types.NIL or type2 == Types.NIL:
+                    self.data_stack.append([False, Types.BOOL])
+                else:
+                    Errors.Exit(Errors.RUN_TYPES)
+                
+            case "LTS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 == Types.NIL or type2 == Types.NIL:
+                    Errors.Exit(Errors.RUN_TYPES)
+                if type1 == type2:
+                    if symb1 < symb2: 
+                        self.data_stack.append([True, Types.BOOL])
+                    else:
+                        self.data_stack.append([False, Types.BOOL])
+                else:
+                    Errors.Exit(Errors.RUN_TYPES)
+            
+            case "GTS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 == Types.NIL or type2 == Types.NIL:
+                    Errors.Exit(Errors.RUN_TYPES)
+                if type1 == type2:
+                    if symb1 > symb2: 
+                        self.data_stack.append([True, Types.BOOL])
+                    else:
+                        self.data_stack.append([False, Types.BOOL])
+                else:
+                    Errors.Exit(Errors.RUN_TYPES)
+
+            case "ANDS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 != Types.BOOL or type2 != Types.BOOL:
+                    Errors.Exit(Errors.RUN_TYPES)
+                self.data_stack.append([symb1 and symb2, Types.BOOL])
+                
+            case "ORS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 != Types.BOOL or type2 != Types.BOOL:
+                    Errors.Exit(Errors.RUN_TYPES)
+                self.data_stack.append([symb1 or symb2, Types.BOOL])
+                
+            case "NOTS":
+                if len(self.data_stack) < 1:
+                    Errors.Exit(Errors.RUN_VALMISS)
+                data = self.data_stack.pop()
+                if data[1] != Types.BOOL:
+                    Errors.Exit(Errors.RUN_TYPES)
+                self.data_stack.append([not data[0], Types.BOOL])
+                
+            case "INT2CHARS":
+                if len(self.data_stack) < 1:
+                    Errors.Exit(Errors.RUN_VALMISS)
+                data = self.data_stack.pop()
+                if data[1] != Types.INT:
+                    Errors.Exit(Errors.RUN_TYPES)
+                try:
+                    self.data_stack.append([chr(data[0]), Types.STRING])
+                except:
+                    Errors.Exit(Errors.RUN_STRING)
+                
+            case "STRI2INTS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 != Types.STRING or type2 != Types.INT:
+                    Errors.Exit(Errors.RUN_TYPES)
+                if len(symb1) <= symb2 or symb2 < 0:
+                    Errors.Exit(Errors.RUN_STRING)
+                else:
+                    self.data_stack.append([ord(symb1[symb2]), Types.INT])
+                
+            case "JUMPIFEQS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 == type2:
+                    if symb1 == symb2: 
+                        return code.labels[arg1]
+                elif type1 == Types.NIL or type2 == Types.NIL:
+                    return 
+                else:
+                    Errors.Exit(Errors.RUN_TYPES)
+                
+            case "JUMPIFNEQS":
+                symb1, symb2, type1, type2 = self.__stack_get2values()
+                if type1 == type2:
+                    if symb1 != symb2: 
+                        return code.labels[arg1]
+                elif type1 == Types.NIL or type2 == Types.NIL:
+                    return code.labels[arg1]
+                else:
+                    Errors.Exit(Errors.RUN_TYPES)
+                
             case _:
                 Errors.Exit(Errors.INTERNAL)
 
         return None
+
+    def __stack_get2ints(self):
+        if len(self.data_stack) < 2:
+            Errors.Exit(Errors.RUN_VALMISS)
+        data = self.data_stack.pop()
+        if data[1] != Types.INT:
+            Errors.Exit(Errors.RUN_TYPES)
+        symb2 = data[0]
+        data = self.data_stack.pop()
+        if data[1] != Types.INT:
+            Errors.Exit(Errors.RUN_TYPES)
+        symb1 = data[0]
+        return symb1, symb2
+    
+    def __stack_get2values(self):
+        if len(self.data_stack) < 2:
+            Errors.Exit(Errors.RUN_VALMISS)
+        data = self.data_stack.pop()
+        type2 = data[1]
+        symb2 = data[0]
+        data = self.data_stack.pop()
+        type1 = data[1]
+        symb1 = data[0]
+        return symb1, symb2, type1, type2
 
     # přesune data proměnných z 1 rámce do proměnných ve 2. rámci
     def changeFrame(self, frameOld, symtable, old = "local"):

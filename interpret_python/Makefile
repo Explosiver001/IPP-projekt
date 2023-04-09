@@ -9,5 +9,5 @@ test:
 	php81 test.php --directory=ipp-2023-tests/both/ --parse-script=../analyzator_kodu_php/parse.php --recursive > out.html
 
 test_int:
-	rm -f out.html
-	php81 test.php --int-only --recursive --directory=ipp-2023-tests/interpret-only/ > out.html
+	rm -f out1.html
+	php81 test.php --int-only --recursive --directory=ipp-2023-tests/interpret-only/stack_tests > out1.html

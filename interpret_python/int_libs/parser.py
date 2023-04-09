@@ -9,8 +9,8 @@ from .resources import *
 
 # počet instrukcí a jednotlivé instrukce
 INS_ARG_COUNT = {
-    0: ["CREATEFRAME", "PUSHFRAME", "POPFRAME", "RETURN", "BREAK"],
-    1: ["DEFVAR", "POPS", "CALL", "PUSHS", "WRITE", "DPRINT", "LABEL", "JUMP", "EXIT"],
+    0: ["CREATEFRAME", "PUSHFRAME", "POPFRAME", "RETURN", "BREAK", "ADDS", "SUBS", "MULS", "IDIVS","LTS", "GTS", "EQS", "ANDS", "ORS", "NOTS", "INT2CHARS", "STRI2INTS", "CLEARS"],
+    1: ["DEFVAR", "POPS", "CALL", "PUSHS", "WRITE", "DPRINT", "LABEL", "JUMP", "EXIT", "JUMPIFEQS", "JUMPIFNEQS"],
     2: ["MOVE", "NOT", "INT2CHAR", "READ", "STRLEN", "TYPE"],
     3: ["ADD", "SUB", "MUL", "IDIV", "LT", "GT", "EQ", "CONCAT", "AND", "OR", "STRI2INT", "GETCHAR", "SETCHAR", "JUMPIFEQ", "JUMPIFNEQ"]
 }
@@ -25,7 +25,7 @@ RULE_SET = [
     [["MOVE"],
         [Types.VAR, False], 
         [Types.SYMBOL, True]],
-    [["CREATEFRAME", "PUSHFRAME", "POPFRAME", "RETURN", "BREAK"]],
+    [["CREATEFRAME", "PUSHFRAME", "POPFRAME", "RETURN", "BREAK", "ADDS", "SUBS", "MULS", "IDIVS","LTS", "GTS", "EQS", "ANDS", "ORS", "NOTS", "INT2CHARS", "STRI2INTS", "CLEARS"]],
     [["DEFVAR"], 
         [Types.VAR, False]],
     [["POPS"], 
@@ -91,7 +91,7 @@ RULE_SET = [
     [["TYPE"],
         [Types.VAR, False],
         [Types.SYMBOL, False]],
-    [["LABEL", "JUMP"],
+    [["LABEL", "JUMP", "JUMPIFEQS", "JUMPIFNEQS"],
         [Types.LABEL, False]],
     [["JUMPIFEQ", "JUMPIFNEQ"],
         [Types.LABEL, False],
