@@ -1,7 +1,8 @@
 #
 # soubor:   interpret.py
 # autor:    Michal Novák <xnovak3>  
-#   
+# Vstupní bod interpretu. Zpracovávají se zde argumenty příkazové řádky. Dále se zde řídí a spojuje chod celého interpretu
+#
 
 import getopt, sys
 
@@ -16,6 +17,7 @@ class Interpret:
         self.source_file = source_file
         self.input_file = input_file
     
+    # spouští chod interpretu
     def Start(self):
         code = Scanner.GetTokens(self.source_file) # získání kódu z XML souboru
         if len(code.lines) == 0: # kód je prázdný
@@ -46,8 +48,7 @@ class Interpret:
                     PC = ret
             else: # přeskočení chybějících pořadí
                 PC += 1
-        
-        
+
 
 
 

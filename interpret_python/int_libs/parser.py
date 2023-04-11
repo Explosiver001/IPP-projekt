@@ -1,13 +1,14 @@
 #
 # soubor:   parser.py
 # autor:    Michal Novák <xnovak3>  
-#   
+# Zde se provádí většina syntaktické a sémantické analýzy   
+#
 
 from .scanner import *
 from .execution import *
 from .resources import *
 
-# počet instrukcí a jednotlivé instrukce
+# počet argumentů instrukcí a jednotlivé instrukce
 INS_ARG_COUNT = {
     0: ["CREATEFRAME", "PUSHFRAME", "POPFRAME", "RETURN", "BREAK", "ADDS", "SUBS", "MULS", "IDIVS","LTS", "GTS", "EQS", "ANDS", "ORS", "NOTS", "INT2CHARS", "STRI2INTS", "CLEARS"],
     1: ["DEFVAR", "POPS", "CALL", "PUSHS", "WRITE", "DPRINT", "LABEL", "JUMP", "EXIT", "JUMPIFEQS", "JUMPIFNEQS"],
@@ -112,6 +113,7 @@ class Parser:
             return ret
         return Parser.CheckSem(instruction) # ověření datových typů
     
+    # Vrací kód chyby nebo 0, kde 0 znamená bez chyb
     @staticmethod
     def CheckSem(instruction):
         opcode = instruction[0] # operační kód instrukce
@@ -131,9 +133,11 @@ class Parser:
                 else:
                     for i in range(1, len(rule)):
                         arg = instruction[i]
+                        # kotrola chybějící hodnoty (pouze pro instrukce vyžadující hodnotu)
                         if rule[i][1] == True and arg.type == Types.VAR and arg.data == None and arg.data_type != Types.NIL:
                             return(Errors.RUN_VALMISS)
                             break
+                        # kontrola správných datových typů
                         if rule[i][0] == Types.VAR and arg.type != Types.VAR:
                             matchFound = False
                             break

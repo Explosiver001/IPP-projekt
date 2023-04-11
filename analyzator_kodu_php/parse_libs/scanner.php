@@ -1,4 +1,10 @@
 <?php
+/**
+ * Autor: Michal Novák
+ * Login: xnovak3g
+ * Datum: 13.03.2023
+ */
+
 include_once 'vars.php';
 
 function is_instruction($token){

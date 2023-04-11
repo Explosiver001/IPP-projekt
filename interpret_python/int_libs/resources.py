@@ -1,7 +1,8 @@
 #
 # soubor:   resources.py
 # autor:    Michal Novák <xnovak3>  
-#   
+# Modul obsahuje prostředky sdílené se všemi moduly. Jsou zde třídy pro základní jednotky interpretu a chybové ukončení.   
+#
 
 import sys
 from enum import Enum
@@ -184,6 +185,8 @@ class Errors:
     RUN_OPVAL = 57
     RUN_STRING = 58   
     INTERNAL = 99
+    
+    # předem definované hlášky
     messages = {
                 XML_WF: "chybny XML format ve vstupnim souboru",
                 XML_STRUCT: "neocekavana struktura XML",
@@ -193,7 +196,8 @@ class Errors:
                 RUN_NOTEX :"behova chyba interpretace – ramec neexistuje (napr. cteni z prazdneho zasobniku ramcu)",
                 RUN_VALMISS :"behova chyba interpretace – chybejici hodnota (v promenne, na datovem zasobniku nebov zasobniku volani)",
                 RUN_OPVAL :"behova chyba interpretace – spatna hodnota operandu (napr. deleni nulou, spatna navra-tova hodnota instrukce EXIT)",
-                RUN_STRING :"behova chyba interpretace – chybna prace s retezcem"
+                RUN_STRING :"behova chyba interpretace – chybna prace s retezcem",
+                INTERNAL: "vnitrni chyba interpretu"
     }
     
     # ukončí interpret s chybovým kódem a hláškou
@@ -203,9 +207,6 @@ class Errors:
         if input_file != None and input_file != sys.stdin:
             input_file.close()
         if message == None:
-            if code != Errors.INTERNAL:
-                message = Errors.messages[code]
-            else:
-                message = "vnitrni chyba interpretu"
+            message = Errors.messages[code]
         sys.stderr.write(message+"\n")
         exit(code)

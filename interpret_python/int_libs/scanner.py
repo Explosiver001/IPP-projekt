@@ -1,7 +1,8 @@
 #
 # soubor:   scanner.py
 # autor:    Michal Novák <xnovak3>  
-#   
+# Tento modul slouží k načtení vstupu z XML souboru   
+#
 
 import xml.etree.ElementTree as ET
 import sys
@@ -80,7 +81,10 @@ class Scanner:
                 type = Scanner.GetType(args.attrib['type']) # získání typu argumentu
                 
                 if type != Types.ERROR:
-                    token = code.symtable.AddChangeToken(args.text, type, None, None)
+                    identif = args.text
+                    if identif != None:
+                        identif = identif.strip()
+                    token = code.symtable.AddChangeToken(identif, type, None, None)
                     if token == None:
                         Errors.Exit(Errors.XML_STRUCT)
                     argsLine[args.tag] = token
@@ -91,11 +95,15 @@ class Scanner:
                         if code.AddLabel(token, order) == False:
                             Errors.Exit(Errors.SEM)
                 else:
-                    print(args.attrib['type'].ljust(7), "::", Scanner.GetType(args.attrib['type']))
+                    print(args.attrib['type'], "::", Scanner.GetType(args.attrib['type']), order)
+                    Errors.Exit(Errors.XML_STRUCT)
+                    
             
             # seřazení argumentů a přiřazení na řádek instrukce
             argsLine = dict(sorted(argsLine.items()))
             for argKey in argsLine:
+                if int(argKey[3]) !=  len(line):
+                    Errors.Exit(Errors.XML_STRUCT)
                 line.append(argsLine[argKey])
             if code.AddLine(line, order) == False:
                 Errors.Exit(Errors.XML_STRUCT)

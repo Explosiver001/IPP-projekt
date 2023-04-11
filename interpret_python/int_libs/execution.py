@@ -1,7 +1,8 @@
 #
 # soubor:   execution.py
 # autor:    Michal Novák <xnovak3>  
-#   
+# Tento modul zajišťuje vykonávání jednotlivých instrukcí 
+#
 
 from .scanner import *
 from .resources import *
@@ -45,9 +46,15 @@ class Runner:
         return self.temporal_frame, self.createFrame
 
     # vykonání instrukce
+    # instruction - aktuálná řádek (instrukce), který se má vykonat
+    # code - celý kód uložený ve vnitřní reprezentaci
+    # line - číslo aktuálního řádku
+    
+    # návratové hodnoty - None = bez skoku, číslo = skok (číslo udává řádek)
     def ExecuteInstruction(self, instruction, code, line):
         opcode = instruction[0] # operaní kód
         
+        #získání argumentů z instrukce
         arg1 = None # argument 1
         arg2 = None # argument 2
         arg3 = None # argument 3
@@ -68,12 +75,14 @@ class Runner:
 
             case "CREATEFRAME":
                 self.createFrame = True
+                for var in self.temporal_frame:
+                    var.defined = False
                 self.temporal_frame = []
 
             case "PUSHFRAME":
-                if self.createFrame == False:
+                if self.createFrame == False: # nebyl vytvořen rámec
                     Errors.Exit(Errors.RUN_NOTEX)
-                self.SaveLocalFrameData()
+                self.SaveLocalFrameData() # uložení dat lokálního rámce
                 if len (self.local_frame) > 0:
                     for var in self.local_frame[len(self.local_frame)-1]:
                         var.data = None
@@ -82,10 +91,10 @@ class Runner:
                 self.createFrame = False
 
             case "POPFRAME":
-                if(len(self.local_frame) <= 0):
+                if(len(self.local_frame) <= 0): # rámce neexistují
                     Errors.Exit(Errors.RUN_NOTEX)
-                self.temporal_frame = self.changeFrame(self.local_frame.pop(), code.symtable, "local")
-                self.RestoreLocalFrameData()
+                self.temporal_frame = self.changeFrame(self.local_frame.pop(), code.symtable, "local") 
+                self.RestoreLocalFrameData() # obnova původních dat rámce
                 self.createFrame = True
 
             case "DEFVAR":
@@ -98,13 +107,13 @@ class Runner:
             case "CALL":
                 if arg1 not in code.labels:
                     Errors.Exit(Errors.SEM)
-                self.PC_stack.append(line)
-                return code.labels[arg1]
+                self.PC_stack.append(line) # uložení hodnoty pro zpětný skok
+                return code.labels[arg1] # nová hodnota pro programový čítač
 
             case "RETURN":          
                 if len(self.PC_stack) > 0:
-                    ret = self.PC_stack.pop()
-                    return ret + 1
+                    ret = self.PC_stack.pop() # vyjmutí hodnoty pro zpětný skok
+                    return ret + 1 
                 else:
                     Errors.Exit(Errors.RUN_VALMISS)
 
@@ -147,8 +156,12 @@ class Runner:
                 arg1.data = (arg2.data > arg3.data)
 
             case "EQ":
-                arg1.data_type = Types.BOOL
-                arg1.data = (arg2.data == arg3.data)
+                if arg2.data_type == arg3.data_type:
+                    arg1.data_type = Types.BOOL
+                    arg1.data = (arg2.data == arg3.data)
+                else: #1 z argumentů je NIL
+                    arg1.data_type = Types.BOOL
+                    arg1.data = False
 
             case "AND":
                 arg1.data = arg2.data and arg3.data
@@ -164,13 +177,13 @@ class Runner:
 
             case "INT2CHAR":
                 arg1.data_type = Types.STRING
-                try:
-                    arg1.data = chr(arg2.data)
-                except:
+                if arg2.data >= 0 and arg2.data <= 0x10ffff: # kontrola rozsahu
+                    arg1.data = chr(arg2.data)  
+                else:
                     Errors.Exit(Errors.RUN_STRING)
 
             case "STRI2INT":
-                if len(arg2.data) <= arg3.data or arg3.data < 0:
+                if len(arg2.data) <= arg3.data or arg3.data < 0: # kontrola rozsahu
                     Errors.Exit(Errors.RUN_STRING)
                 else:
                     arg1.data = ord(arg2.data[arg3.data])
@@ -182,7 +195,7 @@ class Runner:
                     arg1.ChangeDataType(Scanner.GetType(arg2.identif))
                     if arg1.ChangeData(data) == False:
                         raise EOFError
-                except EOFError:
+                except EOFError: # není dostatek uživatelských vstupů
                     arg1.data = ""
                     arg1.data_type = Types.NIL
 
@@ -330,7 +343,7 @@ class Runner:
                     self.data_stack.append([False, Types.BOOL])
                 else:
                     Errors.Exit(Errors.RUN_TYPES)
-                
+
             case "LTS":
                 symb1, symb2, type1, type2 = self.__stack_get2values()
                 if type1 == Types.NIL or type2 == Types.NIL:
@@ -342,7 +355,7 @@ class Runner:
                         self.data_stack.append([False, Types.BOOL])
                 else:
                     Errors.Exit(Errors.RUN_TYPES)
-            
+
             case "GTS":
                 symb1, symb2, type1, type2 = self.__stack_get2values()
                 if type1 == Types.NIL or type2 == Types.NIL:
@@ -360,13 +373,13 @@ class Runner:
                 if type1 != Types.BOOL or type2 != Types.BOOL:
                     Errors.Exit(Errors.RUN_TYPES)
                 self.data_stack.append([symb1 and symb2, Types.BOOL])
-                
+
             case "ORS":
                 symb1, symb2, type1, type2 = self.__stack_get2values()
                 if type1 != Types.BOOL or type2 != Types.BOOL:
                     Errors.Exit(Errors.RUN_TYPES)
                 self.data_stack.append([symb1 or symb2, Types.BOOL])
-                
+
             case "NOTS":
                 if len(self.data_stack) < 1:
                     Errors.Exit(Errors.RUN_VALMISS)
@@ -374,7 +387,7 @@ class Runner:
                 if data[1] != Types.BOOL:
                     Errors.Exit(Errors.RUN_TYPES)
                 self.data_stack.append([not data[0], Types.BOOL])
-                
+
             case "INT2CHARS":
                 if len(self.data_stack) < 1:
                     Errors.Exit(Errors.RUN_VALMISS)
@@ -385,7 +398,7 @@ class Runner:
                     self.data_stack.append([chr(data[0]), Types.STRING])
                 except:
                     Errors.Exit(Errors.RUN_STRING)
-                
+
             case "STRI2INTS":
                 symb1, symb2, type1, type2 = self.__stack_get2values()
                 if type1 != Types.STRING or type2 != Types.INT:
@@ -394,17 +407,17 @@ class Runner:
                     Errors.Exit(Errors.RUN_STRING)
                 else:
                     self.data_stack.append([ord(symb1[symb2]), Types.INT])
-                
+
             case "JUMPIFEQS":
                 symb1, symb2, type1, type2 = self.__stack_get2values()
                 if type1 == type2:
                     if symb1 == symb2: 
                         return code.labels[arg1]
                 elif type1 == Types.NIL or type2 == Types.NIL:
-                    return 
+                    return None
                 else:
                     Errors.Exit(Errors.RUN_TYPES)
-                
+
             case "JUMPIFNEQS":
                 symb1, symb2, type1, type2 = self.__stack_get2values()
                 if type1 == type2:
@@ -414,12 +427,14 @@ class Runner:
                     return code.labels[arg1]
                 else:
                     Errors.Exit(Errors.RUN_TYPES)
-                
+
             case _:
                 Errors.Exit(Errors.INTERNAL)
 
         return None
 
+
+    # získá první 2 hodnoty na vrcholu zásobníku, které musí být typu INT
     def __stack_get2ints(self):
         if len(self.data_stack) < 2:
             Errors.Exit(Errors.RUN_VALMISS)
@@ -433,6 +448,7 @@ class Runner:
         symb1 = data[0]
         return symb1, symb2
     
+    # získá první 2 položky (hodnota + typ) na vrcholu zásobníku 
     def __stack_get2values(self):
         if len(self.data_stack) < 2:
             Errors.Exit(Errors.RUN_VALMISS)

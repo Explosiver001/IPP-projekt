@@ -1,11 +1,17 @@
 <?php
+/**
+ * Autor: Michal Novák
+ * Login: xnovak3g
+ * Datum: 13.03.2023
+ */
 
 include_once "vars.php";
 
 // zjednodušená pravidla neuvažující ani základní kontrolu sémantiky operandu
 // způsob uspořádání dat: seznam instrukcí, seznam možných argumentů
 $RULE_SET = array(
-    array( "_MOVE__NOT__INT2CHAR__STRLEN__TYPE_", // instrukce
+    array( 
+        "_MOVE__NOT__INT2CHAR__STRLEN__TYPE_", // instrukce
         array(Types::Var), // arg1
         array(Types::Var, Types::String, Types::Bool, Types::Int, Types::Nil) ), //arg2 
     array( "_CREATEFRAME__PUSHFRAME__POPFRAME__RETURN__BREAK_" ),

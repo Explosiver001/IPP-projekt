@@ -10,4 +10,8 @@ test:
 
 test_int:
 	rm -f out1.html
-	php81 test.php --int-only --recursive --directory=ipp-2023-tests/interpret-only/stack_tests > out1.html
+	php81 test.php --int-only --recursive --directory=ipp-2023-tests/interpret-only/ > out1.html
+
+extended:
+	rm -f out2.html
+	php81 test.php --int-only --recursive --directory=ipp-2023-tests/extended/ > out2.html

@@ -222,7 +222,7 @@ for SCRIPT in "${REQUIRED_SCRIPTS[@]}" "${NON_REQUIRED_SCRIPTS[@]}"; do
     echo -n "  Checking $SCRIPT: "
     EXT=`echo $SCRIPT | cut -d . -f 2`
     if [[ "$EXT" = "php" ]]; then
-      php8.1 $SCRIPT --help >> $LOG 2>&1
+      php81 $SCRIPT --help >> $LOG 2>&1
       RETCODE=$?
 	  elif [[ "$EXT" = "py" ]]; then
       python3.10 $SCRIPT --help >> $LOG 2>&1
