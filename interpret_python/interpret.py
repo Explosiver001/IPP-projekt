@@ -1,6 +1,6 @@
 #
 # soubor:   interpret.py
-# autor:    Michal Novák <xnovak3>  
+# autor:    Michal Novák <xnovak3g>  
 # Vstupní bod interpretu. Zpracovávají se zde argumenty příkazové řádky. Dále se zde řídí a spojuje chod celého interpretu
 #
 

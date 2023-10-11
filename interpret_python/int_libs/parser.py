@@ -1,6 +1,6 @@
 #
 # soubor:   parser.py
-# autor:    Michal Novák <xnovak3>  
+# autor:    Michal Novák <xnovak3g>  
 # Zde se provádí většina syntaktické a sémantické analýzy   
 #
 

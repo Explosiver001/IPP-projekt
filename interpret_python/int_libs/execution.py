@@ -1,12 +1,11 @@
 #
 # soubor:   execution.py
-# autor:    Michal Novák <xnovak3>  
+# autor:    Michal Novák <xnovak3g>  
 # Tento modul zajišťuje vykonávání jednotlivých instrukcí 
 #
 
 from .scanner import *
 from .resources import *
-import fileinput
 
 class Runner:
     def __init__(self, input):

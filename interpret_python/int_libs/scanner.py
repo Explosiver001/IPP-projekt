@@ -1,6 +1,6 @@
 #
 # soubor:   scanner.py
-# autor:    Michal Novák <xnovak3>  
+# autor:    Michal Novák <xnovak3g>  
 # Tento modul slouží k načtení vstupu z XML souboru   
 #
 
@@ -84,7 +84,7 @@ class Scanner:
                     identif = args.text
                     if identif != None:
                         identif = identif.strip()
-                    token = code.symtable.AddChangeToken(identif, type, None, None)
+                    token = code.symtable.AddGet(identif, type, None, None)
                     if token == None:
                         Errors.Exit(Errors.XML_STRUCT)
                     argsLine[args.tag] = token

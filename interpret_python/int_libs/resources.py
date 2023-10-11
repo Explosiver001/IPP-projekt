@@ -1,6 +1,6 @@
 #
 # soubor:   resources.py
-# autor:    Michal Novák <xnovak3>  
+# autor:    Michal Novák <xnovak3g>  
 # Modul obsahuje prostředky sdílené se všemi moduly. Jsou zde třídy pro základní jednotky interpretu a chybové ukončení.   
 #
 
@@ -109,7 +109,7 @@ class Symtable:
         self.data = []
     
     # přidání tokenu do tabulky symbolů
-    def AddChangeToken(self, identif, type, data_type, data):
+    def AddGet(self, identif, type, data_type, data):
         token = None
         # token existuje, nevytváří se nový token
         for data_token in self.data:
